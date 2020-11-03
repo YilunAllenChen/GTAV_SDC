@@ -1,0 +1,5 @@
+opencv_python
+pywin32
+tensorflow
+tflearn
+matplotlib
