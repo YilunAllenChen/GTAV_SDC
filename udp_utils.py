@@ -14,7 +14,7 @@ def send_to_visualization_engine(data, target='127.0.0.1'):
     _socket.sendto(data, (target, VISUALIZATION_ENGINE))
 
 
-def bytes_gen(data: dict) -> bytes:
+def generate_bytes_packet(data: dict) -> bytes:
     ''' 
     Generates customized UDP packet in bytes using data of the following format:
 
@@ -43,7 +43,7 @@ if __name__ == "__main__":
     while(True):
         msg = input("Please input command: ")
         if msg == 'send':
-            packet = bytes_gen(sample_data)
+            packet = generate_bytes_packet(sample_data)
             send_to_visualization_engine(packet)
         elif 'type' in msg:
             sample_data['type'] = int(msg.split()[1])

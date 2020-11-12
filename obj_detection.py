@@ -10,6 +10,7 @@ import tarfile
 import tensorflow as tf
 import zipfile
 import math
+from udp_utils import send_to_visualization_engine, generate_bytes_packet
 
 from collections import defaultdict
 from io import StringIO
@@ -122,7 +123,15 @@ with detection_graph.as_default():
           else:
             distance = 7 / area
           x_offset = (bounding_box[3] + bounding_box[1])/2 - 0.5
-          print(name, " | confidence: ", scores[0][i], "distance: ",distance, "angle", x_offset)
+
+          packet = generate_bytes_packet({
+            'type': int(classes[0][i]),
+            'dist': float(distance),
+            'angle': float(x_offset)
+          })
+          send_to_visualization_engine(packet)
+
+          # print(name, " | confidence: ", scores[0][i], "distance: ",distance, "angle", x_offset)
 
       cv2.imshow('window',image_np)
       if cv2.waitKey(25) & 0xFF == ord('q'):
