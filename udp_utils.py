@@ -14,6 +14,24 @@ def send_to_visualization_engine(data, target='127.0.0.1'):
     _socket.sendto(data, (target, VISUALIZATION_ENGINE))
 
 
+def generate_bytes_command(command_list: str) -> bytes:
+    # 8 bits: w | a | s | d | e | _ | _ | _
+    byte_command = 0b00000000
+    if 'w' in command_list:
+        byte_command = byte_command | 0b10000000
+    if 'a' in command_list:
+        byte_command = byte_command | 0b01000000
+    if 's' in command_list:
+        byte_command = byte_command | 0b00100000
+    if 'd' in command_list:
+        byte_command = byte_command | 0b00010000
+    if 'e' in command_list:
+        byte_command = byte_command | 0b00001000
+    return struct.pack('B', byte_command)
+
+
+
+
 def generate_bytes_packet(data: dict) -> bytes:
     ''' 
     Generates customized UDP packet in bytes using data of the following format:
@@ -38,19 +56,20 @@ if __name__ == "__main__":
         'angle': 0
     }
 
-    packet = bytes(12)
+    print(generate_bytes_command('we'))
+    # packet = bytes(12)
 
-    while(True):
-        msg = input("Please input command: ")
-        if msg == 'send':
-            packet = generate_bytes_packet(sample_data)
-            send_to_visualization_engine(packet)
-        elif 'type' in msg:
-            sample_data['type'] = int(msg.split()[1])
-            pp(sample_data)
-        elif 'dist' in msg:
-            sample_data['dist'] = float(msg.split()[1])
-            pp(sample_data)
-        elif 'angle' in msg:
-            sample_data['angle'] = float(msg.split()[1])
-            pp(sample_data)
+    # while(True):
+    #     msg = input("Please input command: ")
+    #     if msg == 'send':
+    #         packet = generate_bytes_packet(sample_data)
+    #         send_to_visualization_engine(packet)
+    #     elif 'type' in msg:
+    #         sample_data['type'] = int(msg.split()[1])
+    #         pp(sample_data)
+    #     elif 'dist' in msg:
+    #         sample_data['dist'] = float(msg.split()[1])
+    #         pp(sample_data)
+    #     elif 'angle' in msg:
+    #         sample_data['angle'] = float(msg.split()[1])
+    #         pp(sample_data)
