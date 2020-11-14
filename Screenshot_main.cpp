@@ -7,6 +7,9 @@
 #include <windows.h>
 #include <objidl.h>
 #include <gdiplus.h>
+#include <chrono>
+#include <iomanip>
+
 using namespace Gdiplus;
 
 BITMAPINFOHEADER createBitmapHeader(int width, int height)
@@ -63,6 +66,7 @@ HBITMAP GdiPlusScreenCapture(HWND hWnd)
     // avoid memory leak
     DeleteDC(hwindowCompatibleDC);
     ReleaseDC(hWnd, hwindowDC);
+    GlobalFree(hDIB);
 
     return hbwindow;
 }
@@ -105,37 +109,55 @@ bool saveToMemory(HBITMAP* hbitmap, std::vector<BYTE>& data, std::string dataFor
 
 int main()
 {
+   
     // Initialize GDI+.
     GdiplusStartupInput gdiplusStartupInput;
     ULONG_PTR gdiplusToken;
-    GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
+    
 
     // get the bitmap handle to the bitmap screenshot
-    HWND hWnd = GetDesktopWindow();
-    HBITMAP hBmp = GdiPlusScreenCapture(hWnd);
+    while (true) {
+        auto start = std::chrono::high_resolution_clock::now();
+        GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
+        HWND hWnd = GetDesktopWindow();
+        HBITMAP hBmp = GdiPlusScreenCapture(hWnd);
 
 
-    // save as png to memory
-    std::vector<BYTE> data;
-    std::string dataFormat = "bmp";
+        // save as png to memory
+        std::vector<BYTE> data;
+        std::string dataFormat = "png";
 
-    if (saveToMemory(&hBmp, data, dataFormat))
-    {
-        std::wcout << "Screenshot saved to memory" << std::endl;
+        if (saveToMemory(&hBmp, data, dataFormat))
+        {
+            std::wcout << "Screenshot saved to memory" << std::endl;
 
-        // save from memory to file
-        std::ofstream fout("Screenshot-m1." + dataFormat, std::ios::binary);
-        fout.write((char*)data.data(), data.size());
+            // save from memory to file
+            std::ofstream fout("ScreenShot." + dataFormat, std::ios::binary);
+            fout.write((char*)data.data(), data.size());
+        }
+        else
+            std::wcout << "Error: Couldn't save screenshot to memory" << std::endl;
+
+        GdiplusShutdown(gdiplusToken);
+        auto end = std::chrono::high_resolution_clock::now();
+
+        // Calculating total time taken by the program. 
+        double time_taken =
+            std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
+
+        time_taken *= 1e-9;
+
+        std::cout << "Time taken by this screen capture is : " << std::fixed
+            << time_taken << std::setprecision(9);
+        std::cout << " sec" << std::endl;
     }
-    else
-        std::wcout << "Error: Couldn't save screenshot to memory" << std::endl;
+    
 
 
     // save as png (method 2)
-    CImage image;
-    image.Attach(hBmp);
-    image.Save(L"Screenshot-m2.png");
+    //CImage image;
+    //image.Attach(hBmp);
+    //image.Save(L"Screenshot-m2.png");
 
-    GdiplusShutdown(gdiplusToken);
     return 0;
 }
