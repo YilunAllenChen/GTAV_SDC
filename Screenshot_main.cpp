@@ -1,3 +1,10 @@
+/*
+* Desciption: This screenshot function utilizes the GDIPlus library and saves the entire desktop screenshot to ScreenShot.png.
+*             The window size to be captured can be changed by setting screenx, screeny, width and height inside GdiPlusScreenCapture function
+*             The output file format can be changed via changing the dataFormat argument when calling the saveToMemory function
+* 
+*             Currently, the executable GDIPlus_ScreenCap.exe captures screenshot continuously and outputs latency to the terminal.
+*/
 #include <string>
 #include <vector>
 #include <stdio.h>

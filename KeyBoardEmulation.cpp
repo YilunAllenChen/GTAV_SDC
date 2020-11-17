@@ -1,3 +1,8 @@
+/*
+* Desciption: This application opens a socket and constantly listens for message coming from port 62001.
+*             It receives one byte of message each time and performs keyboard emulation according to the data received.
+*             There is 100ms sleep after each keyboard action to mimic real-life scenario.
+*/
 #define PORT    62001  
 //#include <windows.h>
 #include <stdio.h>
