@@ -1,10 +1,3 @@
-/*
-* Desciption: This screenshot function utilizes the GDIPlus library and saves the entire desktop screenshot to ScreenShot.png.
-*             The window size to be captured can be changed by setting screenx, screeny, width and height inside GdiPlusScreenCapture function
-*             The output file format can be changed via changing the dataFormat argument when calling the saveToMemory function
-* 
-*             Currently, the executable GDIPlus_ScreenCap.exe captures screenshot continuously and outputs latency to the terminal.
-*/
 #include <string>
 #include <vector>
 #include <stdio.h>
@@ -73,6 +66,7 @@ HBITMAP GdiPlusScreenCapture(HWND hWnd)
     // avoid memory leak
     DeleteDC(hwindowCompatibleDC);
     ReleaseDC(hWnd, hwindowDC);
+    GlobalUnlock(hDIB);
     GlobalFree(hDIB);
 
     return hbwindow;
@@ -145,6 +139,8 @@ int main()
         else
             std::wcout << "Error: Couldn't save screenshot to memory" << std::endl;
 
+        DeleteObject(hBmp);
+        DeleteObject(hWnd);
         GdiplusShutdown(gdiplusToken);
         auto end = std::chrono::high_resolution_clock::now();
 
@@ -157,6 +153,7 @@ int main()
         std::cout << "Time taken by this screen capture is : " << std::fixed
             << time_taken << std::setprecision(9);
         std::cout << " sec" << std::endl;
+        //Sleep(1000);
     }
     
 
