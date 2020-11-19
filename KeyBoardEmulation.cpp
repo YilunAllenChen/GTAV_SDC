@@ -1,8 +1,3 @@
-/*
-* Desciption: This application opens a socket and constantly listens for message coming from port 62001.
-*             It receives one byte of message each time and performs keyboard emulation according to the data received.
-*             There is 100ms sleep after each keyboard action to mimic real-life scenario.
-*/
 #define PORT    62001  
 //#include <windows.h>
 #include <stdio.h>
@@ -86,7 +81,7 @@ int main()
     INPUT ip;
     int sockfd;
     socklen_t fromlen;
-    char buffer;
+    unsigned char buffer;
     struct sockaddr_in serv_addr, from;
 
     sockInit();
@@ -119,17 +114,21 @@ int main()
     Sleep(5000);
     while (true)
     {
-        int n = recvfrom(sockfd, &buffer, 1023, 0, (struct sockaddr*)&from, &fromlen);
+        int n = recvfrom(sockfd, (char*)&buffer, 8, 0, (struct sockaddr*)&from, &fromlen);
+        //int n = 1;
+        //buffer = 0b01000000;
         if (n < 0)
             error("recvfrom");
         //buffer[n] = 0;  // Null terminate
-        printf("Received a datagram: %s\n", buffer);
+        printf("Received a datagram: %hhx\n", buffer);
         //n = sendto(sockfd, "Got your message\n", 17, 0, (struct sockaddr*)&from, fromlen);
         //if (n < 0)
         //    error("sendto");
 
         //If the command is a W
-        if ((buffer & 0b10000000) == 1) {
+        //int d = (buffer & 0b01000000) >> 6;
+        //std::cout << d << std::endl;
+        if ((buffer >> 7) == 1) {
             ip.ki.wVk = 0x57; // virtual-key code for the "W" key
             ip.ki.dwFlags = 0; // 0 for key press
             SendInput(1, &ip, sizeof(INPUT));
@@ -139,7 +138,7 @@ int main()
             Sleep(100);
             continue;
         }
-        else if ((buffer & 0b01000000) == 1) {
+        else if (((buffer & 0b01000000) >> 6) == 1) {
             ip.ki.wVk = 0x41; // virtual-key code for the "A" key
             ip.ki.dwFlags = 0; // 0 for key press
             SendInput(1, &ip, sizeof(INPUT));
@@ -149,7 +148,7 @@ int main()
             Sleep(100);
             continue;
         }
-        else if ((buffer & 0b00100000) == 1) {
+        else if (((buffer & 0b00100000) >> 5) == 1) {
             ip.ki.wVk = 0x53; // virtual-key code for the "S" key
             ip.ki.dwFlags = 0; // 0 for key press
             SendInput(1, &ip, sizeof(INPUT));
@@ -159,7 +158,7 @@ int main()
             Sleep(100);
             continue;
         }
-        else if ((buffer & 0b00010000) == 1) {
+        else if (((buffer & 0b00010000) >> 4) == 1) {
             ip.ki.wVk = 0x44; // virtual-key code for the "D" key
             ip.ki.dwFlags = 0; // 0 for key press
             SendInput(1, &ip, sizeof(INPUT));
@@ -170,7 +169,7 @@ int main()
             Sleep(100);
             continue;
         }
-        else if ((buffer & 0b00001000) == 1) {
+        else if (((buffer & 0b00001000) >> 3) == 1) {
             ip.ki.wVk = 0x45; // virtual-key code for the "D" key
             ip.ki.dwFlags = 0; // 0 for key press
             SendInput(1, &ip, sizeof(INPUT));
