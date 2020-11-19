@@ -27,8 +27,8 @@ sys.path.append("C:\\Users\\allen\\AppData\\Roaming\\Python\\Python37\\site-pack
 # ## Object detection imports
 # Here are the imports from the object detection module.
 
-from utils import label_map_util
-from utils import visualization_utils as vis_util
+from object_detection.utils import label_map_util
+from object_detection.utils import visualization_utils as vis_util
 
 
 # # Model preparation 
@@ -72,67 +72,67 @@ categories = label_map_util.convert_label_map_to_categories(label_map, max_num_c
 category_index = label_map_util.create_category_index(categories)
 
 
-# ## Helper code
+### Helper code
 def load_image_into_numpy_array(image):
   (im_width, im_height) = image.size
   return np.array(image.getdata()).reshape(
       (im_height, im_width, 3)).astype(np.uint8)
 
-# Size, in inches, of the output images.
-IMAGE_SIZE = (12, 8)
 
 with detection_graph.as_default():
   
   with tf.compat.v1.Session(graph=detection_graph) as sess:
     while True:
       # Constantly reading from screenshot folder's "screenshot.png" file
-      img = cv2.imread("./screenshot/screenshot.png")
-      # Feeding image
-      image_np = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-      # Expand dimensions since the model expects images to have shape: [1, None, None, 3]
-      image_np_expanded = np.expand_dims(image_np, axis=0)
-      image_tensor = detection_graph.get_tensor_by_name('image_tensor:0')
-      # Each box represents a part of the image where a particular object was detected.
-      boxes = detection_graph.get_tensor_by_name('detection_boxes:0')
-      # Each score represent how level of confidence for each of the objects.
-      # Score is shown on the result image, together with the class label.
-      scores = detection_graph.get_tensor_by_name('detection_scores:0')
-      classes = detection_graph.get_tensor_by_name('detection_classes:0')
-      num_detections = detection_graph.get_tensor_by_name('num_detections:0')
-      # Actual detection.
-      (boxes, scores, classes, num_detections) = sess.run(
-          [boxes, scores, classes, num_detections],
-          feed_dict={image_tensor: image_np_expanded})
-      # Visualization of the results of a detection.
-      vis_util.visualize_boxes_and_labels_on_image_array(
-          image_np,
-          np.squeeze(boxes),
-          np.squeeze(classes).astype(np.int32),
-          np.squeeze(scores),
-          category_index,
-          use_normalized_coordinates=True,
-          line_thickness=5)
-      for i in range(len(scores[0])):
-        if scores[0][i] > 0.5:
-          bounding_box = boxes[0][i]
-          area = math.sqrt(((bounding_box[2] - bounding_box[0]) * 8) ** 2 + ((bounding_box[3] - bounding_box[1]) * 6) ** 2)
-          name = category_index[classes[0][i]]['name']
-          if name == 'person':
-            distance = 5 / area
-          elif name == 'car' or name == 'truck':
-            distance = 10 / area
-          else:
-            distance = 7 / area
-          x_offset = (bounding_box[3] + bounding_box[1])/2 - 0.5
+      #img = cv2.imread("C:/Users/bruce/Desktop/Tech/ECE4122/GTAV_SDC/ScreenShot.png")
+      img = cv2.imread("./ScreenShot.png")
+      if (img is not None):
+        # Feeding image
+        image_np = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        # Expand dimensions since the model expects images to have shape: [1, None, None, 3]
+        image_np_expanded = np.expand_dims(image_np, axis=0)
+        image_tensor = detection_graph.get_tensor_by_name('image_tensor:0')
+        # Each box represents a part of the image where a particular object was detected.
+        boxes = detection_graph.get_tensor_by_name('detection_boxes:0')
+        # Each score represent how level of confidence for each of the objects.
+        # Score is shown on the result image, together with the class label.
+        scores = detection_graph.get_tensor_by_name('detection_scores:0')
+        classes = detection_graph.get_tensor_by_name('detection_classes:0')
+        num_detections = detection_graph.get_tensor_by_name('num_detections:0')
+        # Actual detection.
+        (boxes, scores, classes, num_detections) = sess.run(
+            [boxes, scores, classes, num_detections],
+            feed_dict={image_tensor: image_np_expanded})
+        # Visualization of the results of a detection.
+        vis_util.visualize_boxes_and_labels_on_image_array(
+            image_np,
+            np.squeeze(boxes),
+            np.squeeze(classes).astype(np.int32),
+            np.squeeze(scores),
+            category_index,
+            use_normalized_coordinates=True,
+            line_thickness=5)
+        for i in range(len(scores[0])):
+          if scores[0][i] > 0.5:
+            bounding_box = boxes[0][i]
+            area = math.sqrt(((bounding_box[2] - bounding_box[0]) * 8) ** 2 + ((bounding_box[3] - bounding_box[1]) * 6) ** 2)
+            name = category_index[classes[0][i]]['name']
+            if name == 'person':
+              distance = 5 / area
+            elif name == 'car' or name == 'truck':
+              distance = 10 / area
+            else:
+              distance = 7 / area
+            x_offset = (bounding_box[3] + bounding_box[1])/2 - 0.5
 
-          packet = generate_bytes_packet({
-            'type': int(classes[0][i]),
-            'dist': float(distance),
-            'angle': float(x_offset)
-          })
-          send_to_visualization_engine(packet)
+            packet = generate_bytes_packet({
+              'type': int(classes[0][i]),
+              'dist': float(distance),
+              'angle': float(x_offset)
+            })
+            send_to_visualization_engine(packet)
 
-          # print(name, " | confidence: ", scores[0][i], "distance: ",distance, "angle", x_offset)
+            # print(name, " | confidence: ", scores[0][i], "distance: ",distance, "angle", x_offset)
 
       cv2.imshow('window',image_np)
       if cv2.waitKey(25) & 0xFF == ord('q'):
