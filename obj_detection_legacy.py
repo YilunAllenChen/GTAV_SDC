@@ -17,6 +17,7 @@ from io import StringIO
 from matplotlib import pyplot as plt
 from PIL import Image
 from grabscreen import grab_screen
+from time import time
 import cv2
 
 # This is needed since the notebook is stored in the object_detection folder.
@@ -30,6 +31,7 @@ sys.path.append("C:\\Users\\allen\\AppData\\Roaming\\Python\\Python37\\site-pack
 from utils import label_map_util
 from utils import visualization_utils as vis_util
 
+from directkeys import W, A, S, D, SPACE, PressKey, ReleaseKey
 
 # # Model preparation 
 # What model to download.
@@ -122,19 +124,24 @@ with detection_graph.as_default():
             distance = 10 / area
           else:
             distance = 7 / area
-          x_offset = (bounding_box[3] + bounding_box[1])/2 - 0.5
+          x_offset = ((bounding_box[3] + bounding_box[1])/2 - 0.5)*10
 
           packet = generate_bytes_packet({
             'type': int(classes[0][i]),
             'dist': float(distance),
             'angle': float(x_offset)
           })
-          send_to_visualization_engine(packet)
-          command = generate_bytes_packet('w')
-          print(command)
-          send_to_keyboard_emulator(command)
+          # send_to_visualization_engine(packet)
+          # command = generate_bytes_packet('w')
+          # print(command)
+          # send_to_keyboard_emulator(command)
 
-          # print(name, " | confidence: ", scores[0][i], "distance: ",distance, "angle", x_offset)
+          if(name == 'person'):
+            if (distance < 12 and (x_offset < 1.5 and x_offset > -1.5)):
+                PressKey(SPACE)
+                print(f"[{time()}] \33[91m WARNING \33[0m]: Pedestrian ahead! Emergency Brake Applied")
+
+            # print(name, " | confidence: ", scores[0][i], "distance: ",distance, "angle", x_offset)
 
       cv2.imshow('window',image_np)
       if cv2.waitKey(25) & 0xFF == ord('q'):

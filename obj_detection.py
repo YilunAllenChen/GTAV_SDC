@@ -18,6 +18,7 @@ from matplotlib import pyplot as plt
 from PIL import Image
 from grabscreen import grab_screen
 import cv2
+from directkeys import W, A, S, D, PressKey, ReleaseKey
 
 # This is needed since the notebook is stored in the object_detection folder.
 sys.path.append("..")
@@ -141,10 +142,19 @@ with detection_graph.as_default():
                             'dist': float(distance),
                             'angle': float(x_offset)
                         })
+
+                        if (distance < 1):
+                            PressKey(S)
+                            ReleaseKey(W)
+                        else:
+                            PressKey(W)
+                            ReleaseKey(S)
                         command = generate_bytes_command('w')
                         send_to_visualization_engine(packet)
-                        print('sending command: ',command)
-                        send_to_keyboard_emulator(command)
+
+
+                        # print('sending command: ',command)
+                        # send_to_keyboard_emulator(command)
                         # print(name, " | confidence: ", scores[0][i], "distance: ",distance, "angle", x_offset)
 
                 cv2.imshow('window', image_np)
