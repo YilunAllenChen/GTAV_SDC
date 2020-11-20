@@ -129,8 +129,9 @@ int main()
         //int d = (buffer & 0b01000000) >> 6;
         //std::cout << d << std::endl;
         if ((buffer >> 7) == 1) {
-            ip.ki.wVk = 0x57; // virtual-key code for the "W" key
-            ip.ki.dwFlags = 0; // 0 for key press
+            ip.ki.wVk = 0x0; // virtual-key code for the "W" key
+            ip.ki.wScan = 0x11;
+            ip.ki.dwFlags = 0x8; // 0 for key press
             SendInput(1, &ip, sizeof(INPUT));
             // Release the "W" key
             Sleep(50);
@@ -138,8 +139,9 @@ int main()
             //SendInput(1, &ip, sizeof(INPUT));
         }
         if (((buffer & 0b01000000) >> 6) == 1) {
-            ip.ki.wVk = 0x41; // virtual-key code for the "A" key
-            ip.ki.dwFlags = 0; // 0 for key press
+            ip.ki.wVk = 0x0; // virtual-key code for the "A" key
+            ip.ki.wScan = 0x1E;
+            ip.ki.dwFlags = 0x8; // 0 for key press
             SendInput(1, &ip, sizeof(INPUT));
             // Release the "A" key
             Sleep(50);
@@ -147,8 +149,9 @@ int main()
             //SendInput(1, &ip, sizeof(INPUT));
         }
         if (((buffer & 0b00100000) >> 5) == 1) {
-            ip.ki.wVk = 0x53; // virtual-key code for the "S" key
-            ip.ki.dwFlags = 0; // 0 for key press
+            ip.ki.wVk = 0x0; // virtual-key code for the "S" key
+            ip.ki.wScan = 0x1F;
+            ip.ki.dwFlags = 0x8; // 0 for key press
             SendInput(1, &ip, sizeof(INPUT));
             // Release the "S" key
             Sleep(50);
@@ -156,8 +159,9 @@ int main()
             //SendInput(1, &ip, sizeof(INPUT));
         }
         if (((buffer & 0b00010000) >> 4) == 1) {
-            ip.ki.wVk = 0x44; // virtual-key code for the "D" key
-            ip.ki.dwFlags = 0; // 0 for key press
+            ip.ki.wVk = 0x0; // virtual-key code for the "D" key
+            ip.ki.wScan = 0x20;
+            ip.ki.dwFlags = 0x8; // 0 for key press
             SendInput(1, &ip, sizeof(INPUT));
             Sleep(50);
             // Release the "D" key
@@ -165,8 +169,9 @@ int main()
             //SendInput(1, &ip, sizeof(INPUT));
         }
         if (((buffer & 0b00001000) >> 3) == 1) {
-            ip.ki.wVk = 0x45; // virtual-key code for the "E" key
-            ip.ki.dwFlags = 0; // 0 for key press
+            ip.ki.wVk = 0x0; // virtual-key code for the "E" key
+            ip.ki.wScan = 0x12;
+            ip.ki.dwFlags = 0x8; // 0 for key press
             SendInput(1, &ip, sizeof(INPUT));
             Sleep(50);
             // Release the "E" key
@@ -174,8 +179,9 @@ int main()
             //SendInput(1, &ip, sizeof(INPUT));
         }
         if (((buffer & 0b00000100) >> 2) == 1) {
-            ip.ki.wVk = 0x20; // virtual-key code for the "space" key
-            ip.ki.dwFlags = 0; // 0 for key press
+            ip.ki.wVk = 0x0; // virtual-key code for the "space" key
+            ip.ki.wScan = 0x39;
+            ip.ki.dwFlags = 0x8; // 0 for key press
             SendInput(1, &ip, sizeof(INPUT));
             Sleep(50);
             // Release the "space" key
