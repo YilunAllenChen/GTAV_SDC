@@ -116,7 +116,7 @@ int main()
     {
         int n = recvfrom(sockfd, (char*)&buffer, 8, 0, (struct sockaddr*)&from, &fromlen);
         //int n = 1;
-        //buffer = 0b10000000;
+        //buffer = 0b00000100;
         if (n < 0)
             error("recvfrom");
         //buffer[n] = 0;  // Null terminate
@@ -169,11 +169,21 @@ int main()
             continue;
         }
         else if (((buffer & 0b00001000) >> 3) == 1) {
-            ip.ki.wVk = 0x45; // virtual-key code for the "D" key
+            ip.ki.wVk = 0x45; // virtual-key code for the "E" key
             ip.ki.dwFlags = 0; // 0 for key press
             SendInput(1, &ip, sizeof(INPUT));
             Sleep(50);
-            // Release the "D" key
+            // Release the "E" key
+            ip.ki.dwFlags = KEYEVENTF_KEYUP; // KEYEVENTF_KEYUP for key release
+            SendInput(1, &ip, sizeof(INPUT));
+            continue;
+        }
+        else if (((buffer & 0b00000100) >> 2) == 1) {
+            ip.ki.wVk = 0x20; // virtual-key code for the "space" key
+            ip.ki.dwFlags = 0; // 0 for key press
+            SendInput(1, &ip, sizeof(INPUT));
+            Sleep(50);
+            // Release the "space" key
             ip.ki.dwFlags = KEYEVENTF_KEYUP; // KEYEVENTF_KEYUP for key release
             SendInput(1, &ip, sizeof(INPUT));
             continue;
