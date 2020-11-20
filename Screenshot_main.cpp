@@ -41,10 +41,14 @@ HBITMAP GdiPlusScreenCapture(HWND hWnd)
 
     // define scale, height and width
     int scale = 1;
-    int screenx = GetSystemMetrics(SM_XVIRTUALSCREEN);
-    int screeny = GetSystemMetrics(SM_YVIRTUALSCREEN);
-    int width = GetSystemMetrics(SM_CXVIRTUALSCREEN);
-    int height = GetSystemMetrics(SM_CYVIRTUALSCREEN);
+    //int screenx = GetSystemMetrics(SM_XVIRTUALSCREEN);
+    //int screeny = GetSystemMetrics(SM_YVIRTUALSCREEN);
+    //int width = GetSystemMetrics(SM_CXVIRTUALSCREEN);
+    //int height = GetSystemMetrics(SM_CYVIRTUALSCREEN);
+    int width = 800;
+    int height = 600;
+    int screenx = 800;
+    int screeny = 600;
 
     // create a bitmap
     HBITMAP hbwindow = CreateCompatibleBitmap(hwindowDC, width, height);
@@ -60,7 +64,8 @@ HBITMAP GdiPlusScreenCapture(HWND hWnd)
     char* lpbitmap = (char*)GlobalLock(hDIB);
 
     // copy from the window device context to the bitmap device context
-    StretchBlt(hwindowCompatibleDC, 0, 0, width, height, hwindowDC, screenx, screeny, width, height, SRCCOPY);   //change SRCCOPY to NOTSRCCOPY for wacky colors !
+    //StretchBlt(hwindowCompatibleDC, 0, 0, width, height, hwindowDC, screenx, screeny, width, height, SRCCOPY);   //change SRCCOPY to NOTSRCCOPY for wacky colors !
+    StretchBlt(hwindowCompatibleDC, 0, 0, width, height, hwindowDC, 0, 40, width, height, SRCCOPY);
     GetDIBits(hwindowCompatibleDC, hbwindow, 0, height, lpbitmap, (BITMAPINFO*)&bi, DIB_RGB_COLORS);
 
     // avoid memory leak
