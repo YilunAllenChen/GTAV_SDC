@@ -116,7 +116,7 @@ int main()
     {
         int n = recvfrom(sockfd, (char*)&buffer, 8, 0, (struct sockaddr*)&from, &fromlen);
         //int n = 1;
-        //buffer = 0b00000100;
+        //buffer = 0b11000000;
         if (n < 0)
             error("recvfrom");
         //buffer[n] = 0;  // Null terminate
@@ -134,64 +134,58 @@ int main()
             SendInput(1, &ip, sizeof(INPUT));
             // Release the "W" key
             Sleep(50);
-            ip.ki.dwFlags = KEYEVENTF_KEYUP; // KEYEVENTF_KEYUP for key release
-            SendInput(1, &ip, sizeof(INPUT));
-            continue;
+            //ip.ki.dwFlags = KEYEVENTF_KEYUP; // KEYEVENTF_KEYUP for key release
+            //SendInput(1, &ip, sizeof(INPUT));
         }
-        else if (((buffer & 0b01000000) >> 6) == 1) {
+        if (((buffer & 0b01000000) >> 6) == 1) {
             ip.ki.wVk = 0x41; // virtual-key code for the "A" key
             ip.ki.dwFlags = 0; // 0 for key press
             SendInput(1, &ip, sizeof(INPUT));
             // Release the "A" key
             Sleep(50);
-            ip.ki.dwFlags = KEYEVENTF_KEYUP; // KEYEVENTF_KEYUP for key release
-            SendInput(1, &ip, sizeof(INPUT));
-            continue;
+            //ip.ki.dwFlags = KEYEVENTF_KEYUP; // KEYEVENTF_KEYUP for key release
+            //SendInput(1, &ip, sizeof(INPUT));
         }
-        else if (((buffer & 0b00100000) >> 5) == 1) {
+        if (((buffer & 0b00100000) >> 5) == 1) {
             ip.ki.wVk = 0x53; // virtual-key code for the "S" key
             ip.ki.dwFlags = 0; // 0 for key press
             SendInput(1, &ip, sizeof(INPUT));
             // Release the "S" key
             Sleep(50);
-            ip.ki.dwFlags = KEYEVENTF_KEYUP; // KEYEVENTF_KEYUP for key release
-            SendInput(1, &ip, sizeof(INPUT));
-            continue;
+            //ip.ki.dwFlags = KEYEVENTF_KEYUP; // KEYEVENTF_KEYUP for key release
+            //SendInput(1, &ip, sizeof(INPUT));
         }
-        else if (((buffer & 0b00010000) >> 4) == 1) {
+        if (((buffer & 0b00010000) >> 4) == 1) {
             ip.ki.wVk = 0x44; // virtual-key code for the "D" key
             ip.ki.dwFlags = 0; // 0 for key press
             SendInput(1, &ip, sizeof(INPUT));
             Sleep(50);
             // Release the "D" key
-            ip.ki.dwFlags = KEYEVENTF_KEYUP; // KEYEVENTF_KEYUP for key release
-            SendInput(1, &ip, sizeof(INPUT));
-            continue;
+            //ip.ki.dwFlags = KEYEVENTF_KEYUP; // KEYEVENTF_KEYUP for key release
+            //SendInput(1, &ip, sizeof(INPUT));
         }
-        else if (((buffer & 0b00001000) >> 3) == 1) {
+        if (((buffer & 0b00001000) >> 3) == 1) {
             ip.ki.wVk = 0x45; // virtual-key code for the "E" key
             ip.ki.dwFlags = 0; // 0 for key press
             SendInput(1, &ip, sizeof(INPUT));
             Sleep(50);
             // Release the "E" key
-            ip.ki.dwFlags = KEYEVENTF_KEYUP; // KEYEVENTF_KEYUP for key release
-            SendInput(1, &ip, sizeof(INPUT));
-            continue;
+            //ip.ki.dwFlags = KEYEVENTF_KEYUP; // KEYEVENTF_KEYUP for key release
+            //SendInput(1, &ip, sizeof(INPUT));
         }
-        else if (((buffer & 0b00000100) >> 2) == 1) {
+        if (((buffer & 0b00000100) >> 2) == 1) {
             ip.ki.wVk = 0x20; // virtual-key code for the "space" key
             ip.ki.dwFlags = 0; // 0 for key press
             SendInput(1, &ip, sizeof(INPUT));
             Sleep(50);
             // Release the "space" key
-            ip.ki.dwFlags = KEYEVENTF_KEYUP; // KEYEVENTF_KEYUP for key release
-            SendInput(1, &ip, sizeof(INPUT));
-            continue;
+            //ip.ki.dwFlags = KEYEVENTF_KEYUP; // KEYEVENTF_KEYUP for key release
+            //SendInput(1, &ip, sizeof(INPUT));
         }
-        else {
-            std::cout << "The input commmand which is " << buffer << ", is not valid! Please debug" << std::endl;
-            exit(1);
-        }
+        //else {
+        //    std::cout << "The input commmand which is " << buffer << ", is not valid! Please debug" << std::endl;
+        //    exit(1);
+        //}
     }
     sockClose(sockfd);
 
