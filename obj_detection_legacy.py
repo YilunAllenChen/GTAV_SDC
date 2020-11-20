@@ -9,6 +9,8 @@ import sys
 import tarfile
 import tensorflow as tf
 import zipfile
+import math
+from udp_utils import send_to_visualization_engine, generate_bytes_packet, send_to_keyboard_emulator
 
 from collections import defaultdict
 from io import StringIO
@@ -19,12 +21,14 @@ import cv2
 
 # This is needed since the notebook is stored in the object_detection folder.
 sys.path.append("..")
+sys.path.append("C:\\Users\\allen\\AppData\\Roaming\\Python\\Python37\\site-packages\\tensorflow\\models\\research\\object_detection")
 sys.path.append("C:\\Users\\allen\\AppData\\Roaming\\Python\\Python37\\site-packages\\tensorflow\\models\\research")
 
 # ## Object detection imports
 # Here are the imports from the object detection module.
-from object_detection.utils import label_map_util
-from object_detection.utils import visualization_utils as vis_util
+
+from utils import label_map_util
+from utils import visualization_utils as vis_util
 
 
 # # Model preparation 
@@ -54,7 +58,7 @@ NUM_CLASSES = 90
 # ## Load a (frozen) Tensorflow model into memory.
 detection_graph = tf.Graph()
 with detection_graph.as_default():
-  od_graph_def = tf.compat.v1.GraphDef()
+  od_graph_def = tf.compat.v1.GraphDef() 
   with tf.compat.v2.io.gfile.GFile(PATH_TO_CKPT, 'rb') as fid:
     serialized_graph = fid.read()
     od_graph_def.ParseFromString(serialized_graph)
@@ -78,10 +82,11 @@ def load_image_into_numpy_array(image):
 IMAGE_SIZE = (12, 8)
 
 with detection_graph.as_default():
-  with tf.Session(graph=detection_graph) as sess:
+  
+  with tf.compat.v1.Session(graph=detection_graph) as sess:
     while True:
       #screen = cv2.resize(grab_screen(region=(0,40,1280,745)), (WIDTH,HEIGHT))
-      screen = cv2.resize(grab_screen(region=(0,40,1280,745)), (800,450))
+      screen = cv2.resize(grab_screen(region=(0,40,800,600)), (800,450))
       image_np = cv2.cvtColor(screen, cv2.COLOR_BGR2RGB)
       # Expand dimensions since the model expects images to have shape: [1, None, None, 3]
       image_np_expanded = np.expand_dims(image_np, axis=0)
@@ -105,9 +110,33 @@ with detection_graph.as_default():
           np.squeeze(scores),
           category_index,
           use_normalized_coordinates=True,
-          line_thickness=8)
+          line_thickness=5)
+      for i in range(len(scores[0])):
+        if scores[0][i] > 0.5:
+          bounding_box = boxes[0][i]
+          area = math.sqrt(((bounding_box[2] - bounding_box[0]) * 8) ** 2 + ((bounding_box[3] - bounding_box[1]) * 6) ** 2)
+          name = category_index[classes[0][i]]['name']
+          if name == 'person':
+            distance = 5 / area
+          elif name == 'car' or name == 'truck':
+            distance = 10 / area
+          else:
+            distance = 7 / area
+          x_offset = (bounding_box[3] + bounding_box[1])/2 - 0.5
+
+          packet = generate_bytes_packet({
+            'type': int(classes[0][i]),
+            'dist': float(distance),
+            'angle': float(x_offset)
+          })
+          send_to_visualization_engine(packet)
+          command = generate_bytes_packet('w')
+          print(command)
+          send_to_keyboard_emulator(command)
+
+          # print(name, " | confidence: ", scores[0][i], "distance: ",distance, "angle", x_offset)
 
       cv2.imshow('window',image_np)
       if cv2.waitKey(25) & 0xFF == ord('q'):
           cv2.destroyAllWindows()
-          break 
+          break

@@ -8,11 +8,15 @@ _socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 
 def send_to_visualization_engine(data, target='127.0.0.1'):
-    print('sending', data)
+    # print('sending', data)
     if type(data) != bytes:
         data = bytes(data, 'utf-8')
     _socket.sendto(data, (target, VISUALIZATION_ENGINE))
 
+def send_to_keyboard_emulator(data, target='127.0.0.1'):
+    if type(data) != bytes:
+        data = bytes(data, 'utf-8')  
+    _socket.sendto(data, (target, KEYBOARD_EMULATOR))
 
 def generate_bytes_command(command_list: str) -> bytes:
     # 8 bits: w | a | s | d | e | _ | _ | _
