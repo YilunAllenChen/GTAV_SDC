@@ -18,8 +18,8 @@ from matplotlib import pyplot as plt
 from PIL import Image
 from grabscreen import grab_screen
 import cv2
-from directkeys import W, A, S, D, PressKey, ReleaseKey
-
+from directkeys import W, A, S, D, SPACE, PressKey, ReleaseKey
+from time import time
 # This is needed since the notebook is stored in the object_detection folder.
 sys.path.append("..")
 sys.path.append(
@@ -95,7 +95,7 @@ with detection_graph.as_default():
             img = cv2.imread("./ScreenShot.png")
             if (img is not None):
                 # Feeding image
-                image_np = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+                image_np = img #cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
                 # Expand dimensions since the model expects images to have shape: [1, None, None, 3]
                 image_np_expanded = np.expand_dims(image_np, axis=0)
                 image_tensor = detection_graph.get_tensor_by_name(
@@ -135,7 +135,7 @@ with detection_graph.as_default():
                             distance = 10 / area
                         else:
                             distance = 7 / area
-                        x_offset = (bounding_box[3] + bounding_box[1])/2 - 0.5
+                        x_offset = ((bounding_box[3] + bounding_box[1])/2 - 0.5)*10
 
                         packet = generate_bytes_packet({
                             'type': int(classes[0][i]),
@@ -143,19 +143,25 @@ with detection_graph.as_default():
                             'angle': float(x_offset)
                         })
 
-                        if (distance < 1):
-                            PressKey(S)
-                            ReleaseKey(W)
-                        else:
-                            PressKey(W)
-                            ReleaseKey(S)
-                        command = generate_bytes_command('w')
                         send_to_visualization_engine(packet)
 
+                        if(name == 'person' and distance < 12 and x_offset < 1.5 and x_offset > -1.5):
+                            # PressKey(SPACE)
+                            if (x_offset > 0):
+                                cmd = generate_bytes_command('a ')
+                                # PressKey(A)
+                            else:
+                                cmd = generate_bytes_command('d ')
+                                # PressKey(D)
+                            send_to_keyboard_emulator(cmd)
+                                
+                                
+                                
+                            print(f"[{time()}] \33[91m WARNING \33[0m]: Pedestrian ahead! Emergency Brake Applied")
+                            print(name, " | confidence: ", scores[0][i], "distance: ",distance, "angle", x_offset)
 
                         # print('sending command: ',command)
                         # send_to_keyboard_emulator(command)
-                        # print(name, " | confidence: ", scores[0][i], "distance: ",distance, "angle", x_offset)
 
                 cv2.imshow('window', image_np)
             if cv2.waitKey(25) & 0xFF == ord('q'):

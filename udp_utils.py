@@ -31,6 +31,8 @@ def generate_bytes_command(command_list: str) -> bytes:
         byte_command = byte_command | 0b00010000
     if 'e' in command_list:
         byte_command = byte_command | 0b00001000
+    if ' ' in command_list:
+        byte_command = byte_command | 0b00000100
     return struct.pack('B', byte_command)
 
 
