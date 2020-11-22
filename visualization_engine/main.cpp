@@ -18,6 +18,12 @@ const GLfloat g_defaultCameraZ = 400.0f;
 static GLfloat g_cameraX = g_defaultCameraX;
 static GLfloat g_cameraY = g_defaultCameraY;
 static GLfloat g_cameraZ = g_defaultCameraZ;
+const GLfloat g_defaultCameraLookAtX = 0.0f;
+const GLfloat g_defaultCameraLookAtY = 0.0f;
+const GLfloat g_defaultCameraLookAtZ = 0.0f;
+static GLfloat g_cameraLookAtX = g_defaultCameraLookAtX;
+static GLfloat g_cameraLookAtY = g_defaultCameraLookAtY;
+static GLfloat g_cameraLookAtZ = g_defaultCameraLookAtZ;
 static GLdouble g_cameraXYDistance = sqrt((GLdouble)g_cameraX * (GLdouble)g_cameraX + (GLdouble)g_cameraY * (GLdouble)g_cameraY);
 // degree in radian
 static GLdouble ViewingAngle = atan(g_defaultCameraY / g_defaultCameraX) * 180.0 / PI;
@@ -68,6 +74,7 @@ int main(int argc, char** argv)
   - Press u and i to control camera x direction\n\
   - Press j and k to control camera y direction\n\
   - Press n and m to control camera z direction\n\
+  - Press wasd or WASD to control camera look at location\n\
   - Press ESC, q, and Q to quit\n\
 -----------------------------------------------------------------------\n");
 	// general initialization
@@ -117,7 +124,7 @@ void display()
 	glLoadIdentity();
 	// set the camera center at (g_cameraX, g_cameraY, g_cameraZ) and looking
 	// at the center of the maze, with the z-axis pointing up
-	gluLookAt(g_cameraX, g_cameraY, g_cameraZ, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0);
+	gluLookAt(g_cameraX, g_cameraY, g_cameraZ, g_cameraLookAtX, g_cameraLookAtY, g_cameraLookAtZ, 0.0, 0.0, 1.0);
 	// drawAxis();
 	glMaterialfv(GL_FRONT, GL_SHININESS, shininess);
 	glMaterialfv(GL_FRONT, GL_AMBIENT, colorDarkWhite);
@@ -172,6 +179,7 @@ void timer(int)
 // Press u and i to control camera x direction
 // Press j and k to control camera y direction
 // Press n and m to control camera z direction
+// Press WASD to control the camera look at location.
 // releaseSpecialKey: Set incremental motion to zero
 //----------------------------------------------------------------------
 void keyboard(unsigned char key, int x, int y)
@@ -204,10 +212,28 @@ void keyboard(unsigned char key, int x, int y)
 		g_cameraX = g_defaultCameraX;
 		g_cameraY = g_defaultCameraY;
 		g_cameraZ = g_defaultCameraZ;
+		g_cameraLookAtX = g_defaultCameraLookAtX;
+		g_cameraLookAtY = g_defaultCameraLookAtY;
+		g_cameraLookAtZ = g_defaultCameraLookAtZ;
 		ViewingAngle = atan(g_defaultCameraY / g_defaultCameraX) * 180.0 / PI;
 		glutPostRedisplay();
 		break;
-
+	case 'w':
+	case 'W':
+		g_cameraLookAtZ += 10.0f;
+		break;
+	case 's':
+	case 'S':
+		g_cameraLookAtZ -= 10.0f;
+		break;
+	case 'a':
+	case 'A':
+		g_cameraLookAtX += 10.0f;
+		break;
+	case 'd':
+	case 'D':
+		g_cameraLookAtX -= 10.0f;
+		break;
 	case 'u':
 		g_cameraX -= 10.0f;
 		break;
