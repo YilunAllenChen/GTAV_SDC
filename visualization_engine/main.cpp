@@ -143,8 +143,11 @@ void display()
 	// testLocation[1] = { selfLocation[1] - testDistance * cos(testAngle * PI / 180) };
 	// testLocation[1] = 300.0f;
 	testDistance = sqrt((testLocation[0] - selfLocation[0]) * (testLocation[0] - selfLocation[0]) + (testLocation[1] - selfLocation[1]) * (testLocation[1] - selfLocation[1]));
-	player1.drawHuman(testLocation);
 
+	if (testLocation[0] < 400 && testLocation[0] > -400)
+	{
+		player1.drawHuman(testLocation);
+	}
 	//for (float i = -3; i < 3; i++)
 	//{
 	//	for (float j = -3; j < 3; j++)
