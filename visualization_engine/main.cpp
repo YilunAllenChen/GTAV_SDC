@@ -12,9 +12,9 @@ static GLsizei g_Height = 800;
 static GLfloat g_fieldOfView = 45.0f;
 static GLfloat g_nearPlane = 0.1f;
 static GLfloat g_farPlane = 100000.0f;
-const GLfloat g_defaultCameraX = 282.84f;
-const GLfloat g_defaultCameraY = -489.90f;
-const GLfloat g_defaultCameraZ = 300.0f;
+const GLfloat g_defaultCameraX = 0.000001f;
+const GLfloat g_defaultCameraY = 800.0f;
+const GLfloat g_defaultCameraZ = 400.0f;
 static GLfloat g_cameraX = g_defaultCameraX;
 static GLfloat g_cameraY = g_defaultCameraY;
 static GLfloat g_cameraZ = g_defaultCameraZ;
@@ -40,6 +40,13 @@ GLfloat shininess[] = { 5 };
 // quadratic for drawing sphere and cylinder
 GLUquadricObj* quadratic{ nullptr };
 
+
+static GLdouble selfLocation[2] = { 0.0f, 500.0f };
+
+
+
+
+
 // function prototypes
 void init();
 void display();
@@ -47,6 +54,7 @@ void changeSize();
 void keyboard(unsigned char, int, int);
 void changeSize(int, int);
 void timer(int);
+void drawGround();
 
 
 int main(int argc, char** argv)
@@ -91,8 +99,14 @@ void init()
 	{
 		quadratic = gluNewQuadric();
 	}
+	// lighting effects
+	glEnable(GL_LIGHTING);
+	glEnable(GL_LIGHT0);
+	// glLightfv(GL_LIGHT0, GL_POSITION, light_position);
+	glLightfv(GL_LIGHT0, GL_AMBIENT, colorOffWhite);
+	glLightfv(GL_LIGHT0, GL_DIFFUSE, colorOffWhite);
+	glLightfv(GL_LIGHT0, GL_SPECULAR, colorDarkWhite);
 	glShadeModel(GL_SMOOTH);
-
 }
 
 void display()
@@ -103,17 +117,15 @@ void display()
 	glLoadIdentity();
 	// set the camera center at (g_cameraX, g_cameraY, g_cameraZ) and looking
 	// at the center of the maze, with the z-axis pointing up
-	gluLookAt(g_cameraX, g_cameraY, g_cameraZ, 0.0, 0.0, -50.0, 0.0, 0.0, 1.0);
+	gluLookAt(g_cameraX, g_cameraY, g_cameraZ, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0);
 	// drawAxis();
-	glBegin(GL_QUADS);
-	glColor3f(0.0, 1.0, 1.0);
-	glVertex3f(-180.0, 200.0, 0.0);
-	glVertex3f(-180.0, -220.0, 0.0);
-	glVertex3f(180.0, -220.0, 0.0);
-	glVertex3f(180.0, 200.0, 0.0);
-	glEnd();
-	human player1;
-	player1.drawHuman(0.0f, 0.0f);
+	glMaterialfv(GL_FRONT, GL_SHININESS, shininess);
+	glMaterialfv(GL_FRONT, GL_AMBIENT, colorDarkWhite);
+	drawGround();
+	human self;
+	self.drawHuman(selfLocation);
+
+
 
 	//for (float i = -3; i < 3; i++)
 	//{
@@ -147,6 +159,7 @@ void timer(int)
 {
 	glutPostRedisplay();
 	glutTimerFunc(1000 / 60, timer, 0);
+	
 }
 
 //----------------------------------------------------------------------
@@ -194,11 +207,7 @@ void keyboard(unsigned char key, int x, int y)
 		ViewingAngle = atan(g_defaultCameraY / g_defaultCameraX) * 180.0 / PI;
 		glutPostRedisplay();
 		break;
-	case 'w':
-		g_cameraX -= 10.0f;
-		g_cameraY += 10.0f;
-		g_cameraZ -= 10.0f;
-		break;
+
 	case 'u':
 		g_cameraX -= 10.0f;
 		break;
@@ -217,12 +226,21 @@ void keyboard(unsigned char key, int x, int y)
 	case 'm':
 		g_cameraZ += 10.0f;
 		break;
-	case 's':
-		g_cameraX += 10.0f;
-		g_cameraY -= 10.0f;
-		g_cameraZ += 10.0f;
-		break;
 	default:
 		break;
 	}
+}
+void drawGround()
+{
+	glPushMatrix();
+	glMaterialfv(GL_FRONT, GL_DIFFUSE, colorBlue);
+	glMaterialfv(GL_FRONT, GL_SPECULAR, colorBlue);
+	glColor3f(12.0f / 255.0f, 153.0f / 255.0f, 255.0f / 255.0f);
+	glBegin(GL_QUADS);
+	glVertex3f(-180.0, 200.0, 0.0);
+	glVertex3f(-180.0, -220.0, 0.0);
+	glVertex3f(180.0, -220.0, 0.0);
+	glVertex3f(180.0, 200.0, 0.0);
+	glEnd();
+	glPopMatrix();
 }
