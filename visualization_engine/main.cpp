@@ -49,7 +49,11 @@ GLUquadricObj* quadratic{ nullptr };
 
 static GLdouble selfLocation[2] = { 0.0f, 500.0f };
 
-
+int state = 1;
+static GLdouble testDistance = 500;
+static GLdouble testAngle = 40;
+// static GLdouble testLocation[2];
+static GLdouble testLocation[2] = { selfLocation[0] - testDistance * sin(testAngle * PI / 180) , selfLocation[1] - testDistance * cos(testAngle * PI / 180) };
 
 
 
@@ -133,6 +137,13 @@ void display()
 	self.drawHuman(selfLocation);
 
 
+	human player1;
+
+	// testLocation[0] = { selfLocation[0] - testDistance * sin(testAngle * PI / 180) };
+	// testLocation[1] = { selfLocation[1] - testDistance * cos(testAngle * PI / 180) };
+	// testLocation[1] = 300.0f;
+	testDistance = sqrt((testLocation[0] - selfLocation[0]) * (testLocation[0] - selfLocation[0]) + (testLocation[1] - selfLocation[1]) * (testLocation[1] - selfLocation[1]));
+	player1.drawHuman(testLocation);
 
 	//for (float i = -3; i < 3; i++)
 	//{
@@ -166,7 +177,31 @@ void timer(int)
 {
 	glutPostRedisplay();
 	glutTimerFunc(1000 / 60, timer, 0);
-	
+	switch (state)
+	{
+	case 1:
+		if (testLocation[0] < 500.0f)
+		{
+			testLocation[0] += 5.0f;
+		}
+		else
+		{
+			state = -1;
+		}
+		break;
+	case -1:
+		if (testLocation[0] > -500.0f)
+		{
+			testLocation[0] -= 5.0f;
+		}
+		else
+		{
+			state = 1;
+		}
+		break;
+	default:
+		break;
+	}
 }
 
 //----------------------------------------------------------------------
