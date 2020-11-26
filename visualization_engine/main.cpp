@@ -7,6 +7,8 @@
 #include <math.h>
 #include "human.h"
 #include <thread>
+#include <mutex>
+
 
 #ifdef _WIN32
 /* See http://stackoverflow.com/questions/12765743/getaddrinfo-on-win32 */
@@ -82,7 +84,7 @@ GLUquadricObj* quadratic{ nullptr };
 
 
 static GLdouble selfLocation[2] = { 0.0f, 500.0f };
-
+std::mutex socket_mutex;
 int state = 1;
 static GLdouble testDistance = 500;
 static GLdouble testAngle = 40;
@@ -209,13 +211,15 @@ void receivePack()
 	len = sizeof(cliaddr);  //len is value/resuslt 
 	while (1)
 	{
-		printf("size of ve_packet %d \n", sizeof(ve_packet));
+	    printf("size of ve_packet %d \n", sizeof(ve_packet));
 		n = recvfrom(sockfd, (char*)&packet_buffer, 1023,
 			0, (struct sockaddr*)&cliaddr,
 			&len);
 		printf("Packet Received: type: %d , distance: %f , angle %f\n", packet_buffer.type, packet_buffer.distance, packet_buffer.angle);
+		socket_mutex.lock();
 		testDistance = packet_buffer.distance;
 		testAngle = packet_buffer.angle;
+		socket_mutex.unlock();
 	}
 
 	sockClose(sockfd);
@@ -245,12 +249,12 @@ void display()
 	// testLocation[0] = { selfLocation[0] - testDistance * sin(testAngle * PI / 180) };
 	// testLocation[1] = { selfLocation[1] - testDistance * cos(testAngle * PI / 180) };
 	// testLocation[1] = 300.0f;
-	testDistance = sqrt((testLocation[0] - selfLocation[0]) * (testLocation[0] - selfLocation[0]) + (testLocation[1] - selfLocation[1]) * (testLocation[1] - selfLocation[1]));
-
-	if (testLocation[0] < 400 && testLocation[0] > -400)
-	{
-		player1.drawHuman(testLocation);
-	}
+	// testDistance = sqrt((testLocation[0] - selfLocation[0]) * (testLocation[0] - selfLocation[0]) + (testLocation[1] - selfLocation[1]) * (testLocation[1] - selfLocation[1]));
+	player1.drawHuman(testLocation);
+	//if (testLocation[0] < 400 && testLocation[0] > -400)
+	//{
+	//	player1.drawHuman(testLocation);
+	//}
 	//for (float i = -3; i < 3; i++)
 	//{
 	//	for (float j = -3; j < 3; j++)
@@ -415,24 +419,6 @@ void drawGround()
 
 int main(int argc, char** argv)
 {
-	std::thread Receive(receivePack);
-	// general initialization
-	glutInit(&argc, argv);
-	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
-	glutInitWindowPosition(100, 50);
-	glutInitWindowSize(g_Width, g_Height);
-	glutCreateWindow("GTAV SDC");
-	init();
-
-		
-	// register callbacks
-	glutDisplayFunc(display);	// display callback
-	glutReshapeFunc(changeSize);	// window reshape callback
-	glutKeyboardFunc(keyboard);		// keyboard callback
-	glutTimerFunc(0, timer, 0);		// timer callback
-
-	// enter GLUT event processing cycle
-
 	printf("\n\
 -----------------------------------------------------------------------\n\
   Welcome to the GTAV SDC:\n\
@@ -445,7 +431,21 @@ int main(int argc, char** argv)
   - Press wasd or WASD to control camera look at location\n\
   - Press ESC, q, and Q to quit\n\
 -----------------------------------------------------------------------\n");
-	
+	std::thread Receive(receivePack);
+	// general initialization
+	glutInit(&argc, argv);
+	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
+	glutInitWindowPosition(100, 50);
+	glutInitWindowSize(g_Width, g_Height);
+	glutCreateWindow("GTAV SDC");
+	init();	
+	// register callbacks
+	glutDisplayFunc(display);	// display callback
+	glutReshapeFunc(changeSize);	// window reshape callback
+	glutKeyboardFunc(keyboard);		// keyboard callback
+	glutTimerFunc(0, timer, 0);		// timer callback
+
+	// enter GLUT event processing cycle
 	glutMainLoop();
 
 	gluDeleteQuadric(quadratic);
