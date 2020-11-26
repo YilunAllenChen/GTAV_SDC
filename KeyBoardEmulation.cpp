@@ -134,7 +134,7 @@ int main()
             ip.ki.dwFlags = 0x8; // 0 for key press
             SendInput(1, &ip, sizeof(INPUT));
             // Release the "W" key
-            Sleep(50);
+            //Sleep(50);
             //ip.ki.dwFlags = KEYEVENTF_KEYUP; // KEYEVENTF_KEYUP for key release
             //SendInput(1, &ip, sizeof(INPUT));
         }
@@ -144,7 +144,7 @@ int main()
             ip.ki.dwFlags = 0x8; // 0 for key press
             SendInput(1, &ip, sizeof(INPUT));
             // Release the "A" key
-            Sleep(50);
+            //Sleep(50);
             //ip.ki.dwFlags = KEYEVENTF_KEYUP; // KEYEVENTF_KEYUP for key release
             //SendInput(1, &ip, sizeof(INPUT));
         }
@@ -154,7 +154,7 @@ int main()
             ip.ki.dwFlags = 0x8; // 0 for key press
             SendInput(1, &ip, sizeof(INPUT));
             // Release the "S" key
-            Sleep(50);
+            //Sleep(50);
             //ip.ki.dwFlags = KEYEVENTF_KEYUP; // KEYEVENTF_KEYUP for key release
             //SendInput(1, &ip, sizeof(INPUT));
         }
@@ -163,7 +163,7 @@ int main()
             ip.ki.wScan = 0x20;
             ip.ki.dwFlags = 0x8; // 0 for key press
             SendInput(1, &ip, sizeof(INPUT));
-            Sleep(50);
+            // Sleep(50);
             // Release the "D" key
             //ip.ki.dwFlags = KEYEVENTF_KEYUP; // KEYEVENTF_KEYUP for key release
             //SendInput(1, &ip, sizeof(INPUT));
@@ -173,7 +173,7 @@ int main()
             ip.ki.wScan = 0x12;
             ip.ki.dwFlags = 0x8; // 0 for key press
             SendInput(1, &ip, sizeof(INPUT));
-            Sleep(50);
+            //Sleep(50);
             // Release the "E" key
             //ip.ki.dwFlags = KEYEVENTF_KEYUP; // KEYEVENTF_KEYUP for key release
             //SendInput(1, &ip, sizeof(INPUT));
@@ -183,7 +183,7 @@ int main()
             ip.ki.wScan = 0x39;
             ip.ki.dwFlags = 0x8; // 0 for key press
             SendInput(1, &ip, sizeof(INPUT));
-            Sleep(50);
+            //Sleep(50);
             // Release the "space" key
             //ip.ki.dwFlags = KEYEVENTF_KEYUP; // KEYEVENTF_KEYUP for key release
             //SendInput(1, &ip, sizeof(INPUT));
@@ -192,6 +192,7 @@ int main()
         //    std::cout << "The input commmand which is " << buffer << ", is not valid! Please debug" << std::endl;
         //    exit(1);
         //}
+        Sleep(50);
     }
     sockClose(sockfd);
 

@@ -12,7 +12,7 @@ public:
 	void drawNeck();
 	void drawLeftArm();
 	void drawRightArm();
-	void drawHuman(GLfloat, GLfloat);
+	void drawHuman(GLdouble*);
 private:
 	// human's position
 	GLfloat xPosition, yPosition, zPosition;

@@ -1,6 +1,9 @@
 #include "human.h"
 
 extern GLUquadricObj* quadratic;
+
+static GLfloat colorRed[4] = { 1.0f, 0.137f, 0.0f, 1.0f };
+
 human::human() :
 	xPosition{ 0.0f }, yPosition{ 0.0f }, zPosition{ 0.0f }
 {
@@ -27,39 +30,41 @@ void human::drawRightLeg()
 
 void human::drawBody()
 {
+	glColor3f(1.0f, 0.0f, 0.0f);
 	glBegin(GL_QUADS);
+
 	// front
-	glColor3f(1.0, 0.0, 0.0);
+	// glColor3f(1.0, 0.0, 0.0);
 	glVertex3f(-10.0, 5.0, 40.0);
 	glVertex3f(-10.0, -5.0, 40.0);
 	glVertex3f(10.0, -5.0, 40.0);
 	glVertex3f(10.0, 5.0, 40.0);
 	// back
-	glColor3f(0.0, 1.0, 0.0);
+	// glColor3f(0.0, 1.0, 0.0);
 	glVertex3f(10.0, 5.0, 0.0);
 	glVertex3f(10.0, -5.0, 0.0);
 	glVertex3f(-10.0, -5.0, 0.0);
 	glVertex3f(-10.0, 5.0, 0.0);
 	// right
-	glColor3f(0.0, 0.0, 1.0);
+	// glColor3f(0.0, 0.0, 1.0);
 	glVertex3f(10.0, -5.0, 40.0);
 	glVertex3f(10.0, -5.0, 0.0);
 	glVertex3f(10.0, 5.0, 0.0);
 	glVertex3f(10.0, 5.0, 40.0);
 	// left
-	glColor3f(1.0, 1.0, 0.0);
+	// glColor3f(1.0, 1.0, 0.0);
 	glVertex3f(-10.0, 5.0, 0.0);
 	glVertex3f(-10.0, -5.0, 0.0);
 	glVertex3f(-10.0, -5.0, 40.0);
 	glVertex3f(-10.0, 5.0, 40.0);
 	// top
-	glColor3f(0.0, 1.0, 1.0);
+	// glColor3f(0.0, 1.0, 1.0);
 	glVertex3f(-10.0, 5.0, 0.0);
 	glVertex3f(-10.0, 5.0, 40.0);
 	glVertex3f(10.0, 5.0, 40.0);
 	glVertex3f(10.0, 5.0, 0.0);
 	// bottom
-	glColor3f(1.0, 0.0, 1.0);
+	// glColor3f(1.0, 0.0, 1.0);
 	glVertex3f(-10.0, -5.0, 0.0);
 	glVertex3f(-10.0, -5.0, 40.0);
 	glVertex3f(10.0, -5.0, 40.0);
@@ -106,10 +111,13 @@ void human::drawRightArm()
 	glPopMatrix();
 }
 
-void human::drawHuman(GLfloat x, GLfloat y)
+void human::drawHuman(GLdouble* coordinate)
 {
+	// set material color and use diffuse and specular material
+	glMaterialfv(GL_FRONT, GL_DIFFUSE, colorRed);
+	glMaterialfv(GL_FRONT, GL_SPECULAR, colorRed);
 	glPushMatrix();
-	glTranslatef(x, y, 0.0f);
+	glTranslatef(coordinate[0], coordinate[1], 0.0f);
 	drawLeftLeg();
 	drawRightLeg();
 	glTranslatef(0.0f, 0.0f, 50.0f);
