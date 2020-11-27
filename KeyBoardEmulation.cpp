@@ -114,7 +114,7 @@ int main()
     Sleep(5000);
     while (true)
     {
-        int n = recvfrom(sockfd, (char*)&buffer, 8, 0, (struct sockaddr*)&from, &fromlen);
+        int n = recvfrom(sockfd, (char*)&buffer, 1, 0, (struct sockaddr*)&from, &fromlen);
         //int n = 1;
         //buffer = 0b11000000;
         if (n < 0)
