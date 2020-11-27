@@ -11,6 +11,7 @@ import tensorflow as tf
 import zipfile
 import math
 from udp_utils import send_to_visualization_engine, generate_bytes_command, generate_bytes_packet, send_to_keyboard_emulator
+from time import time
 
 from collections import defaultdict
 from io import StringIO
@@ -85,14 +86,20 @@ def load_image_into_numpy_array(image):
     return np.array(image.getdata()).reshape(
         (im_height, im_width, 3)).astype(np.uint8)
 
-
+x = 0
 with detection_graph.as_default():
 
     with tf.compat.v1.Session(graph=detection_graph) as sess:
         while True:
             # Constantly reading from screenshot folder's "screenshot.png" file
             #img = cv2.imread("C:/Users/bruce/Desktop/Tech/ECE4122/GTAV_SDC/ScreenShot.png")
-            img = cv2.imread("./ScreenShot.png")
+            #img = cv2.imread("./ScreenShot.png")
+            #start_time = time()
+            img = cv2.imread("./ScreenShot%s.png" % x)
+            x += 1
+            if x == 10:
+                x = 0
+            #print("i: ", x)
             if (img is not None):
                 # Feeding image
                 image_np = img #cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
@@ -157,14 +164,10 @@ with detection_graph.as_default():
                             print(f"[{time()}] \33[91m WARNING \33[0m]: Pedestrian ahead! Emergency Brake Applied")
                             print(name, " | confidence: ", scores[0][i], "distance: ",distance, "angle", x_offset)
                         send_to_keyboard_emulator(cmd)
-                                
-                                
-                                
-
                         # print('sending command: ',command)
                         # send_to_keyboard_emulator(command)
-
                 cv2.imshow('window', image_np)
+                #print("--- %s seconds ---" % (time() - start_time))
             if cv2.waitKey(25) & 0xFF == ord('q'):
                 cv2.destroyAllWindows()
                 break
