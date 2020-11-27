@@ -112,7 +112,7 @@ bool saveToMemory(HBITMAP* hbitmap, std::vector<BYTE>& data, std::string dataFor
     return true;
 }
 
-
+static int count = 0;
 int main()
 {
    
@@ -123,6 +123,8 @@ int main()
 
     // get the bitmap handle to the bitmap screenshot
     while (true) {
+        count++;
+        if (count >= 10) count = 0;
         auto start = std::chrono::high_resolution_clock::now();
         GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
         HWND hWnd = GetDesktopWindow();
@@ -138,7 +140,7 @@ int main()
             std::wcout << "Screenshot saved to memory" << std::endl;
 
             // save from memory to file
-            std::ofstream fout("ScreenShot." + dataFormat, std::ios::binary);
+            std::ofstream fout("ScreenShot" + std::to_string(count) + "." + dataFormat, std::ios::binary);
             fout.write((char*)data.data(), data.size());
         }
         else
