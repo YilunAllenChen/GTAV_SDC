@@ -4,10 +4,11 @@ from random import random
 
 
 while(True):
-    data = generate_bytes_packet({
-                                'type': 1,
-                                'dist': 500.0,
-                                'angle': 45
-                            })
-    send_to_visualization_engine(data)
+    for i in range(4):
+        data = generate_bytes_packet({
+                                    'type': 1 if i%2 == 0 else 3,
+                                    'dist': 100*i,
+                                    'angle': 20*i
+                                })
+        send_to_visualization_engine(data)
     sleep(1)

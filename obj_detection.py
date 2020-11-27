@@ -146,13 +146,12 @@ with detection_graph.as_default():
 
                         packet = generate_bytes_packet({
                             'type': int(classes[0][i]),
-                            'dist': float(distance),
-                            'angle': float(x_offset)
+                            'dist': float(distance)*20,
+                            'angle': float(x_offset)*30
                         })
 
                         send_to_visualization_engine(packet)
 
-                        cmd = generate_bytes_command('w')
                         if(name == 'person' and distance < 12 and x_offset < 1.5 and x_offset > -1.5):
                             # PressKey(SPACE)
                             if (x_offset > 0):
@@ -163,7 +162,7 @@ with detection_graph.as_default():
                                 # PressKey(D)
                             print(f"[{time()}] \33[91m WARNING \33[0m]: Pedestrian ahead! Emergency Brake Applied")
                             print(name, " | confidence: ", scores[0][i], "distance: ",distance, "angle", x_offset)
-                        send_to_keyboard_emulator(cmd)
+                            send_to_keyboard_emulator(cmd)
                         # print('sending command: ',command)
                         # send_to_keyboard_emulator(command)
                 cv2.imshow('window', image_np)
