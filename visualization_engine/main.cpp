@@ -246,8 +246,8 @@ void display()
 
 	human player1;
 
-	// testLocation[0] = { selfLocation[0] - testDistance * sin(testAngle * PI / 180) };
-	// testLocation[1] = { selfLocation[1] - testDistance * cos(testAngle * PI / 180) };
+	testLocation[0] = { selfLocation[0] - testDistance * sin(testAngle * PI / 180) };
+	testLocation[1] = { selfLocation[1] - testDistance * cos(testAngle * PI / 180) };
 	// testLocation[1] = 300.0f;
 	// testDistance = sqrt((testLocation[0] - selfLocation[0]) * (testLocation[0] - selfLocation[0]) + (testLocation[1] - selfLocation[1]) * (testLocation[1] - selfLocation[1]));
 	player1.drawHuman(testLocation);
