@@ -184,7 +184,7 @@ void receivePack()
 	// Creating socket file descriptor 
 	if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
 		// int WSAGetLastError();
-		printf("erro code: %d\n", WSAGetLastError());
+		// printf("erro code: %d\n", WSAGetLastError());
 		perror("socket creation failed");
 		exit(EXIT_FAILURE);
 	}
@@ -211,10 +211,10 @@ void receivePack()
 	len = sizeof(cliaddr);  //len is value/resuslt 
 	while (1)
 	{
-	    printf("size of ve_packet %d \n", sizeof(ve_packet));
+	    // printf("size of ve_packet %d \n", sizeof(ve_packet));
 		n = recvfrom(sockfd, (char*)&packet_buffer, 1023,
 			0, (struct sockaddr*)&cliaddr,
-			&len);
+			(socklen_t*)&len);
 		printf("Packet Received: type: %d , distance: %f , angle %f\n", packet_buffer.type, packet_buffer.distance, packet_buffer.angle);
 		socket_mutex.lock();
 		testDistance = packet_buffer.distance;
