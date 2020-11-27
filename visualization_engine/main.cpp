@@ -8,7 +8,8 @@
 #include "human.h"
 #include <thread>
 #include <mutex>
-
+#include <list>
+#include <vector>
 
 #ifdef _WIN32
 /* See http://stackoverflow.com/questions/12765743/getaddrinfo-on-win32 */
@@ -83,14 +84,14 @@ GLfloat shininess[] = { 5 };
 GLUquadricObj* quadratic{ nullptr };
 
 
-static GLdouble selfLocation[2] = { 0.0f, 500.0f };
+static std::vector<GLdouble> selfLocation = { {0.0, 500.0} };
 std::mutex socket_mutex;
 int state = 1;
-static GLdouble testDistance = 500;
-static GLdouble testAngle = 40;
+static GLdouble testDistance[3] = {};
+static GLdouble testAngle[3] = {};
 // static GLdouble testLocation[2];
-static GLdouble testLocation[2] = { selfLocation[0] - testDistance * sin(testAngle * PI / 180) , selfLocation[1] - testDistance * cos(testAngle * PI / 180) };
-
+static GLdouble testLocation[6]{};
+std::vector<std::vector<GLdouble>>location;
 
 /////////////////////////////////////////////////
 // Cross-platform socket initialize
@@ -211,15 +212,18 @@ void receivePack()
 	len = sizeof(cliaddr);  //len is value/resuslt 
 	while (1)
 	{
-	    // printf("size of ve_packet %d \n", sizeof(ve_packet));
-		n = recvfrom(sockfd, (char*)&packet_buffer, 1023,
-			0, (struct sockaddr*)&cliaddr,
-			(socklen_t*)&len);
-		printf("Packet Received: type: %d , distance: %f , angle %f\n", packet_buffer.type, packet_buffer.distance, packet_buffer.angle);
-		socket_mutex.lock();
-		testDistance = packet_buffer.distance;
-		testAngle = packet_buffer.angle;
-		socket_mutex.unlock();
+		for (size_t i = 0; i < 3; i++)
+		{
+			// printf("size of ve_packet %d \n", sizeof(ve_packet));
+			n = recvfrom(sockfd, (char*)&packet_buffer, 1023,
+				0, (struct sockaddr*)&cliaddr,
+				(socklen_t*)&len);
+			printf("Packet Received: type: %d , distance: %f , angle %f\n", packet_buffer.type, packet_buffer.distance, packet_buffer.angle);
+			socket_mutex.lock();
+			testDistance[i] = packet_buffer.distance;
+			testAngle[i] = packet_buffer.angle;
+			socket_mutex.unlock();
+		}
 	}
 
 	sockClose(sockfd);
@@ -243,14 +247,27 @@ void display()
 	human self;
 	self.drawHuman(selfLocation);
 
+	human players[3];
 
-	human player1;
+	
+	testLocation[0] = { selfLocation[0] - testDistance[0] * sin(testAngle[0] * PI / 180) };
+	testLocation[1] = { selfLocation[1] - testDistance[0] * cos(testAngle[0] * PI / 180) };
+	testLocation[2] = { selfLocation[0] - testDistance[1] * sin(testAngle[1] * PI / 180) };
+	testLocation[3] = { selfLocation[1] - testDistance[1] * cos(testAngle[1] * PI / 180) };
+	testLocation[4] = { selfLocation[0] - testDistance[2] * sin(testAngle[2] * PI / 180) };
+	testLocation[5] = { selfLocation[1] - testDistance[2] * cos(testAngle[2] * PI / 180) };
+	location[0] = {testLocation[0], testLocation[1]};
+	location[1] = {testLocation[2], testLocation[3]};
+	location[2] = {testLocation[4], testLocation[5]};
 
-	testLocation[0] = { selfLocation[0] - testDistance * sin(testAngle * PI / 180) };
-	testLocation[1] = { selfLocation[1] - testDistance * cos(testAngle * PI / 180) };
+
+	for (size_t i = 0; i < 3; i++)
+	{
+		players[i].drawHuman(location[i]);
+	}
 	// testLocation[1] = 300.0f;
 	// testDistance = sqrt((testLocation[0] - selfLocation[0]) * (testLocation[0] - selfLocation[0]) + (testLocation[1] - selfLocation[1]) * (testLocation[1] - selfLocation[1]));
-	player1.drawHuman(testLocation);
+	// player1.drawHuman(testLocation);
 	//if (testLocation[0] < 400 && testLocation[0] > -400)
 	//{
 	//	player1.drawHuman(testLocation);
@@ -432,6 +449,13 @@ int main(int argc, char** argv)
   - Press ESC, q, and Q to quit\n\
 -----------------------------------------------------------------------\n");
 	std::thread Receive(receivePack);
+
+
+	std::vector<GLdouble> location1;
+	for (auto i = 0; i < 3; ++i) {
+		location.push_back(location1);
+	}
+
 	// general initialization
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);

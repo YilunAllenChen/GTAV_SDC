@@ -111,7 +111,7 @@ void human::drawRightArm()
 	glPopMatrix();
 }
 
-void human::drawHuman(GLdouble* coordinate)
+void human::drawHuman(std::vector<GLdouble> coordinate)
 {
 	// set material color and use diffuse and specular material
 	glMaterialfv(GL_FRONT, GL_DIFFUSE, colorRed);

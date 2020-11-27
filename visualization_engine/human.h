@@ -1,6 +1,6 @@
 #pragma once
 #include <GL/glut.h>
-
+#include <vector>
 class human
 {
 public:
@@ -12,7 +12,7 @@ public:
 	void drawNeck();
 	void drawLeftArm();
 	void drawRightArm();
-	void drawHuman(GLdouble*);
+	void drawHuman(std::vector<GLdouble>);
 private:
 	// human's position
 	GLfloat xPosition, yPosition, zPosition;
