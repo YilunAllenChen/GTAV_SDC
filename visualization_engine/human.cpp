@@ -3,6 +3,7 @@
 extern GLUquadricObj* quadratic;
 
 static GLfloat colorRed[4] = { 1.0f, 0.137f, 0.0f, 1.0f };
+static GLfloat light_position[] = { -1000.0f, 0.0f, 1000.0f, 0.0f };
 
 human::human() :
 	xPosition{ 0.0f }, yPosition{ 0.0f }, zPosition{ 0.0f }
@@ -116,6 +117,7 @@ void human::drawHuman(std::vector<GLdouble> coordinate)
 	// set material color and use diffuse and specular material
 	glMaterialfv(GL_FRONT, GL_DIFFUSE, colorRed);
 	glMaterialfv(GL_FRONT, GL_SPECULAR, colorRed);
+	// glLightfv(GL_LIGHT0, GL_POSITION, light_position);
 	glPushMatrix();
 	glTranslatef(coordinate[0], coordinate[1], 0.0f);
 	drawLeftLeg();
