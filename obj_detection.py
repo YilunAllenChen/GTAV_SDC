@@ -77,11 +77,14 @@ def load_image_into_numpy_array(image):
 
 x = 0
 with detection_graph.as_default():
-
     with tf.compat.v1.Session(graph=detection_graph) as sess:
+        """
+        While loop for reading and analyzing the screenshots
+        """
         while True:
             # Constantly reading from screenshot folder's "screenshot.png" file
             img = cv2.imread("./ScreenShot%s.png" % x)
+            #Loop between the screenshots based on analysis time and screen capture time
             x += 1
             if x == 10:
                 x = 0
@@ -116,6 +119,7 @@ with detection_graph.as_default():
                     category_index,
                     use_normalized_coordinates=True,
                     line_thickness=5)
+                #Displaying the bounding boxes based on score and what type of object it is
                 for i in range(len(scores[0])):
                     if scores[0][i] > 0.5:
                         bounding_box = boxes[0][i]
@@ -135,9 +139,9 @@ with detection_graph.as_default():
                             'dist': float(distance)*20,
                             'angle': float(x_offset)*30
                         })
-
+                        #Sending for visualization
                         send_to_visualization_engine(packet)
-
+                        #Depending on analysis, emulate keyboard controls
                         if(name == 'person' and distance < 12 and x_offset < 1.5 and x_offset > -1.5):
                             # PressKey(SPACE)
                             if (x_offset > 0):
@@ -153,6 +157,7 @@ with detection_graph.as_default():
                         # send_to_keyboard_emulator(command)
                 cv2.imshow('window', image_np)
                 #print("--- %s seconds ---" % (time() - start_time))
+            #q for quitting the window
             if cv2.waitKey(25) & 0xFF == ord('q'):
                 cv2.destroyAllWindows()
                 break
