@@ -13,7 +13,7 @@ Presentation Video: https://www.youtube.com/watch?v=K5tWRnS-N8U&feature=youtu.be
 - Yida Wang
     - Designed and implemented the Data Visualization Engine.
     - Boosted capabilities of the engine to support live rendering of multiple objects.
-- Bruce Yang
+- Bruce Qin 
     - Designed and implemented the Data Ingestion Engine.
     - Significantly improved performance of Ingestion Engine by 8-10 times.
 
