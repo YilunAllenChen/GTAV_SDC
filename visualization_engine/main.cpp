@@ -78,6 +78,7 @@ static GLfloat colorPink[4] = { 1.0f, 0.737f, 0.894f, 1.0f };
 static GLfloat colorRed[4] = { 1.0f, 0.137f, 0.0f, 1.0f };
 static GLfloat colorOrange[4] = { 1.0f, 0.745f, 0.05f, 1.0f };
 static GLfloat colorSilver[4] = { 0.75f, 0.75f, 0.75f, 1.0f };
+
 // define shininess for reflection
 GLfloat shininess[] = { 5 };
 // quadratic for drawing sphere and cylinder
@@ -87,14 +88,20 @@ GLUquadricObj* quadratic{ nullptr };
 static std::vector<GLdouble> selfLocation = { {0.0, 500.0} };
 std::mutex socket_mutex;
 int detectedType{};
-static GLdouble personDistance[3] = {};
-static GLdouble personAngle[3] = {};
-static GLdouble personLocation[6]{};
-static std::vector<std::vector<GLdouble>>personLocationVec;
-static GLdouble carDistance[3] = {};
-static GLdouble carAngle[3] = {};
-static GLdouble carLocation[6]{};
-static std::vector<std::vector<GLdouble>>carLocationVec;
+//static GLdouble personDistance[3] = {};
+//static GLdouble personAngle[3] = {};
+//static GLdouble personLocation[6]{};
+//static std::vector<std::vector<GLdouble>>personLocationVec;
+//static GLdouble carDistance[3] = {};
+//static GLdouble carAngle[3] = {};
+//static GLdouble carLocation[6]{};
+//static std::vector<std::vector<GLdouble>>carLocationVec;
+static GLdouble personDistance{};
+static GLdouble personAngle{};
+static std::vector<GLdouble>personLocation;
+static GLdouble carDistance{};
+static GLdouble carAngle{};
+static std::vector<GLdouble>carLocation;
 /////////////////////////////////////////////////
 // Cross-platform socket initialize
 int sockInit(void)
@@ -164,7 +171,7 @@ void init()
 	
 	glEnable(GL_LIGHT0);
 	// glLightfv(GL_LIGHT0, GL_POSITION, light_position);
-	// glLightfv(GL_LIGHT0, GL_POSITION, light_position);
+    glLightfv(GL_LIGHT0, GL_POSITION, light_position);
 	glLightfv(GL_LIGHT0, GL_AMBIENT, colorOffWhite);
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, colorOffWhite);
 	glLightfv(GL_LIGHT0, GL_SPECULAR, colorDarkWhite);
@@ -216,35 +223,39 @@ void receivePack()
 	len = sizeof(cliaddr);  //len is value/resuslt 
 	while (1)
 	{
-		for (size_t i = 0; i < 3; i++)
+		// printf("size of ve_packet %d \n", sizeof(ve_packet));
+		n = recvfrom(sockfd, (char*)&packet_buffer, 1023,
+			0, (struct sockaddr*)&cliaddr,
+			(socklen_t*)&len);
+		printf("Packet Received: type: %d , distance: %f , angle %f\n", packet_buffer.type, packet_buffer.distance, packet_buffer.angle);
+		socket_mutex.lock();
+		switch (packet_buffer.type)
 		{
-			// printf("size of ve_packet %d \n", sizeof(ve_packet));
-			n = recvfrom(sockfd, (char*)&packet_buffer, 1023,
-				0, (struct sockaddr*)&cliaddr,
-				(socklen_t*)&len);
-			printf("Packet Received: type: %d , distance: %f , angle %f\n", packet_buffer.type, packet_buffer.distance, packet_buffer.angle);
-			socket_mutex.lock();
-			switch (packet_buffer.type)
-			{
-			case 1:
-				detectedType = 1;
-				personDistance[i] = packet_buffer.distance;
-				personAngle[i] = packet_buffer.angle;
-				break;
-			case 2:
-				detectedType = 2;
-				break;
-			case 3:
-				detectedType = 3;
-				carDistance[i] = packet_buffer.distance;
-				carAngle[i] = packet_buffer.angle;
-				break;
-			default:
-				break;
-			}
-			
-			socket_mutex.unlock();
+		case 1:
+			detectedType = 1;
+			/*personDistance[i] = packet_buffer.distance;
+			personAngle[i] = packet_buffer.angle;*/
+			personDistance = packet_buffer.distance;
+			personAngle = packet_buffer.angle;
+			break;
+		case 2:
+			detectedType = 2;
+			break;
+		case 3:
+			detectedType = 3;
+			/*carDistance[i] = packet_buffer.distance;
+			carAngle[i] = packet_buffer.angle;*/
+			carDistance = packet_buffer.distance;
+			carAngle = packet_buffer.angle;
+			break;
+		default:
+			break;
 		}
+		socket_mutex.unlock();
+		/*for (size_t i = 0; i < 3; i++)
+		{
+			
+		}*/
 	}
 
 	sockClose(sockfd);
@@ -265,18 +276,19 @@ void display()
 	glMaterialfv(GL_FRONT, GL_SHININESS, shininess);
 	glMaterialfv(GL_FRONT, GL_AMBIENT, colorDarkWhite);
 	// drawGround();
-	car self;
-	self.drawCar(selfLocation);
+	// car self;
+	// self.drawCar(selfLocation);
 
-	human people[3];
-	car cars[3];
-
+	// human people[3];
+	// car cars[3];
+	human person;
+	car car;
 	
 
 	switch (detectedType)
 	{
 	case 1:
-		personLocation[0] = { selfLocation[0] - personDistance[0] * sin(personAngle[0] * PI / 180) };
+		/*personLocation[0] = { selfLocation[0] - personDistance[0] * sin(personAngle[0] * PI / 180) };
 		personLocation[1] = { selfLocation[1] - personDistance[0] * cos(personAngle[0] * PI / 180) };
 		personLocation[2] = { selfLocation[0] - personDistance[1] * sin(personAngle[1] * PI / 180) };
 		personLocation[3] = { selfLocation[1] - personDistance[1] * cos(personAngle[1] * PI / 180) };
@@ -288,24 +300,31 @@ void display()
 		for (size_t i = 0; i < 3; i++)
 		{
 			people[i].drawHuman(personLocationVec[i]);
-		}
+		}*/
+		personLocation[0] = { selfLocation[0] - personDistance * sin(personAngle * PI / 180) };
+		personLocation[1] = { selfLocation[1] - personDistance * cos(personAngle * PI / 180) };
+		person.drawHuman(personLocation);
 		break;
 	case 2:
 		break;
 	case 3:
-		carLocation[0] = { selfLocation[0] - carDistance[0] * sin(carAngle[0] * PI / 180) };
-		carLocation[1] = { selfLocation[1] - carDistance[0] * cos(carAngle[0] * PI / 180) };
-		carLocation[2] = { selfLocation[0] - carDistance[1] * sin(carAngle[1] * PI / 180) };
-		carLocation[3] = { selfLocation[1] - carDistance[1] * cos(carAngle[1] * PI / 180) };
-		carLocation[4] = { selfLocation[0] - carDistance[2] * sin(carAngle[2] * PI / 180) };
-		carLocation[5] = { selfLocation[1] - carDistance[2] * cos(carAngle[2] * PI / 180) };
-		carLocationVec[0] = { carLocation[0], carLocation[1] };
-		carLocationVec[1] = { carLocation[2], carLocation[3] };
-		carLocationVec[2] = { carLocation[4], carLocation[5] };
-		for (size_t i = 0; i < 3; i++)
-		{
-			cars[i].drawCar(carLocationVec[i]);
-		}
+		//carLocation[0] = { selfLocation[0] - carDistance[0] * sin(carAngle[0] * PI / 180) };
+		//carLocation[1] = { selfLocation[1] - carDistance[0] * cos(carAngle[0] * PI / 180) };
+		//carLocation[2] = { selfLocation[0] - carDistance[1] * sin(carAngle[1] * PI / 180) };
+		//carLocation[3] = { selfLocation[1] - carDistance[1] * cos(carAngle[1] * PI / 180) };
+		//carLocation[4] = { selfLocation[0] - carDistance[2] * sin(carAngle[2] * PI / 180) };
+		//carLocation[5] = { selfLocation[1] - carDistance[2] * cos(carAngle[2] * PI / 180) };
+		//carLocationVec[0] = { carLocation[0], carLocation[1] };
+		//carLocationVec[1] = { carLocation[2], carLocation[3] };
+		//carLocationVec[2] = { carLocation[4], carLocation[5] };
+		//for (size_t i = 0; i < 3; i++)
+		//{
+		//	cars[i].drawCar(carLocationVec[i]);
+		//}
+		carLocation[0] = { selfLocation[0] - carDistance * sin(carAngle * PI / 180) };
+		carLocation[1] = { selfLocation[1] - carDistance * cos(carAngle * PI / 180) };
+		car.drawCar(carLocation);
+		break;
 	default:
 		break;
 	}
@@ -453,11 +472,12 @@ int main(int argc, char** argv)
 	std::thread Receive(receivePack);
 
 
-	std::vector<GLdouble> location1;
-	for (auto i = 0; i < 3; ++i) {
-		personLocationVec.push_back(location1);
-		carLocationVec.push_back(location1);
+	//std::vector<GLdouble> location1;
+	for (auto i = 0; i < 2; ++i) {
+		personLocation.push_back(0);
+		carLocation.push_back(0);
 	}
+	
 
 	// general initialization
 	glutInit(&argc, argv);
