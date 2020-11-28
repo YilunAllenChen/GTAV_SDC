@@ -297,10 +297,7 @@ void display()
 		personLocationVec[0] = { personLocation[0], personLocation[1] };
 		personLocationVec[1] = { personLocation[2], personLocation[3] };
 		personLocationVec[2] = { personLocation[4], personLocation[5] };
-		for (size_t i = 0; i < 3; i++)
-		{
-			people[i].drawHuman(personLocationVec[i]);
-		}
+		
 		/*personLocation[0] = { selfLocation[0] - personDistance * sin(personAngle * PI / 180) };
 		personLocation[1] = { selfLocation[1] - personDistance * cos(personAngle * PI / 180) };
 		person.drawHuman(personLocation);*/
@@ -319,6 +316,7 @@ void display()
 		carLocationVec[2] = { carLocation[4], carLocation[5] };
 		for (size_t i = 0; i < 3; i++)
 		{
+			people[i].drawHuman(personLocationVec[i]);
 			cars[i].drawCar(carLocationVec[i]);
 		}
 		/*carLocation[0] = { selfLocation[0] - carDistance * sin(carAngle * PI / 180) };
@@ -473,6 +471,7 @@ int main(int argc, char** argv)
 
 
 	std::vector<GLdouble> location1;
+	location1 = { 0, -10000 };
 	for (auto i = 0; i < 6; ++i) 
 	{
 		personLocationVec.push_back(location1);
