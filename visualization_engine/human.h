@@ -1,3 +1,10 @@
+/*
+	Author: Yida Wang
+	Class: ECE 4122
+	Last Date Modified: November 27th, 2020
+
+	Description: This is the header file of the human class
+*/
 #pragma once
 #include <GL/glut.h>
 #include <vector>

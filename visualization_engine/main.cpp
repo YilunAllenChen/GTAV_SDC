@@ -1,3 +1,20 @@
+/*
+	Author: Yida Wang
+	Class: ECE 4122
+	Last Date Modified: November 27th, 2020
+
+	Description: This is an OpenGL visualization engine of GTAV.
+	The main purpose of this program is to extract data from object detection
+	engine by using UDP socket. There are two classes in this program, human and car.
+	Due to limited time, these are the only two objects can be drawn in the scene.
+	Using the distance and angle from data packet received from object detection engine,
+	this program will calculate the location of the objects and draw them in the scene.
+	It will also update constantly as GTAV is running. 
+	NOTE: This program will NOT draw anything if obj_detection.py and the GTAV game is 
+	NOT running. 
+	There is an example python script call dve_testing_script.py can be used to see few 
+	example objects to be drawn in the scene.
+*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -30,17 +47,9 @@ typedef int SOCKET;
 #endif
 
 #define PI 3.141592653589793238
+// default PORT number
 #define PORT 62000
-// function prototypes
 
-
-//void init();
-//void display();
-//void changeSize();
-//void keyboard(unsigned char, int, int);
-//void changeSize(int, int);
-//void timer(int);
-//void drawGround();
 // Window size
 static GLsizei g_Width = 1000;
 static GLsizei g_Height = 800;
@@ -63,15 +72,10 @@ static GLfloat g_cameraLookAtZ = g_defaultCameraLookAtZ;
 static GLdouble g_cameraXYDistance = sqrt((GLdouble)g_cameraX * (GLdouble)g_cameraX + (GLdouble)g_cameraY * (GLdouble)g_cameraY);
 // degree in radian
 static GLdouble ViewingAngle = atan(g_defaultCameraY / g_defaultCameraX) * 180.0 / PI;
-//static GLfloat light_position[] = { 0.0f, -100.0f, 200.0f, 0.0f };
-static GLfloat light_position[] = { 0.0f, -1000.0f, 1000.0f, 0.0f };
 
 // colors for lighting effects
 static GLfloat colorDarkWhite[4] = { 0.1f, 0.1f, 0.1f, 1.0f };
-// static GLfloat colorOffWhite[4] = { 1.0f, 248.0f / 255.0f, 220.0f / 255.0f, 1.0f };
 static GLfloat colorOffWhite[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
-// static GLfloat colorWhite[4] = { .60, 0.60, 0.60, 1.0f };
-// static GLfloat colorBlack[4] = { 0.01, 0.01, 0.01, 1.0f };
 static GLfloat colorBlue[4] = { 12.0f / 255.0f, 153.0f / 255.0f, 255.0f / 255.0f, 1.0f };
 static GLfloat colorGreen[4] = { 0.157f, 0.784f, 0.667f, 1.0f };
 static GLfloat colorPink[4] = { 1.0f, 0.737f, 0.894f, 1.0f };
@@ -84,33 +88,15 @@ GLfloat shininess[] = { 5 };
 // quadratic for drawing sphere and cylinder
 GLUquadricObj* quadratic{ nullptr };
 
-
+// location variables for object location
 static std::vector<GLdouble> selfLocation = { {0.0, 500.0} };
-std::mutex socket_mutex;
-int detectedType{};
-// draw 3 object per frame;
-//static GLdouble personDistance[3] = {};
-//static GLdouble personAngle[3] = {};
-//static GLdouble personLocation[6]{};
-//static std::vector<std::vector<GLdouble>>personLocationVec;
-//static GLdouble carDistance[3] = {};
-//static GLdouble carAngle[3] = {};
-//static GLdouble carLocation[6]{};
-//static std::vector<std::vector<GLdouble>>carLocationVec;
-// only draw one object per frame
-//static GLdouble personDistance{};
-//static GLdouble personAngle{};
-//static std::vector<GLdouble>personLocation;
-//static GLdouble carDistance{};
-//static GLdouble carAngle{};
-//static std::vector<GLdouble>carLocation;
-
-// only one location
+std::mutex socket_mutex;	//mutex to protect location data
 static GLdouble distance[3] = {};
 static GLdouble angle[3] = {};
 static GLdouble location[6]{};
 static int types[3] = {};
 static std::vector<std::vector<GLdouble>>locationVector;
+
 /////////////////////////////////////////////////
 // Cross-platform socket initialize
 int sockInit(void)
@@ -177,23 +163,22 @@ void init()
 	}
 	// lighting effects
 	glEnable(GL_LIGHTING);
-	
 	glEnable(GL_LIGHT0);
-	// glLightfv(GL_LIGHT0, GL_POSITION, light_position);
-    // glLightfv(GL_LIGHT0, GL_POSITION, light_position);
 	glLightfv(GL_LIGHT0, GL_AMBIENT, colorOffWhite);
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, colorOffWhite);
 	glLightfv(GL_LIGHT0, GL_SPECULAR, colorDarkWhite);
 	glShadeModel(GL_SMOOTH);
 }
-int sockfd, newsockfd;
 
+// receiving struct packet
 typedef struct ve_packet_t {
 	uint32_t type;
 	float distance;
 	float angle;
 } ve_packet;
 
+// constant running and receiving packets from
+// object detection engine
 void receivePack()
 {
 	int sockfd;
@@ -203,9 +188,8 @@ void receivePack()
 	sockInit();
 
 	// Creating socket file descriptor 
-	if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
-		// int WSAGetLastError();
-		// printf("erro code: %d\n", WSAGetLastError());
+	if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) 
+	{
 		perror("socket creation failed");
 		exit(EXIT_FAILURE);
 	}
@@ -225,76 +209,48 @@ void receivePack()
 		perror("bind failed");
 		exit(EXIT_FAILURE);
 	}
-
 	int len, n;
-
-
 	len = sizeof(cliaddr);  //len is value/resuslt 
+	// constantly updating received packet
 	while (1)
 	{
-
+		// receive 3 data packets at a time
 		for (size_t i = 0; i < 3; i++)
 		{
-			// printf("size of ve_packet %d \n", sizeof(ve_packet));
 			n = recvfrom(sockfd, (char*)&packet_buffer, 1023,
 				0, (struct sockaddr*)&cliaddr,
 				(socklen_t*)&len);
 			printf("Packet Received: type: %d , distance: %f , angle %f\n", packet_buffer.type, packet_buffer.distance, packet_buffer.angle);
-
 			socket_mutex.lock();
-			// switch (packet_buffer.type)
-			// {
-			// case 1:
-			// 	detectedType = 1;
-			// 	/*personDistance[i] = packet_buffer.distance;
-			// 	personAngle[i] = packet_buffer.angle;*/
-			// 	break;
-			// case 2:
-			// 	detectedType = 2;
-			// 	break;
-			// case 3:
-			// 	detectedType = 3;
-			// 	/*carDistance[i] = packet_buffer.distance;
-			// 	carAngle[i] = packet_buffer.angle;*/
-			// 	break;
-			// default:
-			// 	break;
-			// }
 			distance[i] = packet_buffer.distance;
 			angle[i] = packet_buffer.angle;
 			types[i] = packet_buffer.type;
 			socket_mutex.unlock();
 		}
 	}
-
+	// terminate socket
 	sockClose(sockfd);
 	sockQuit();
 }
-
+//----------------------------------------------------------------------
+// Draw the virtual scene of GTAV
+//----------------------------------------------------------------------
 void display()
 {
-
 	// clear color and depth buffers
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	// reset transformations
 	glLoadIdentity();
 	// set the camera center at (g_cameraX, g_cameraY, g_cameraZ) and looking
-	// at the center of the maze, with the z-axis pointing up
+	// at the look at coordinate, with the z-axis pointing up
 	gluLookAt(g_cameraX, g_cameraY, g_cameraZ, g_cameraLookAtX, g_cameraLookAtY, g_cameraLookAtZ, 0.0, 0.0, 1.0);
-	// drawAxis();
+	// define material color
 	glMaterialfv(GL_FRONT, GL_SHININESS, shininess);
 	glMaterialfv(GL_FRONT, GL_AMBIENT, colorDarkWhite);
-	// drawGround();
-	// car self;
-	// self.drawCar(selfLocation);
-
-	human people[3];
-	car cars[3];
-	// test draw
-	// human person;
-	// person.drawHuman({ 100, 500 });
-	// car car1;
-	// car1.drawCar({ 0, 500 });
+	// create two objects
+	human person;
+	car car;
+	// calculate the location based on the distance and angle received from udp packet
 	location[0] = { selfLocation[0] - distance[0] * sin(angle[0] * PI / 180) };
 	location[1] = { selfLocation[1] - distance[0] * cos(angle[0] * PI / 180) };
 	location[2] = { selfLocation[0] - distance[1] * sin(angle[1] * PI / 180) };
@@ -304,68 +260,25 @@ void display()
 	locationVector[0] = { location[0], location[1] };
 	locationVector[1] = { location[2], location[3] };
 	locationVector[2] = { location[4], location[5] };
-	//switch (detectedType)
-	//{
-	//case 1:
-	//	personLocation[0] = { selfLocation[0] - personDistance[0] * sin(personAngle[0] * PI / 180) };
-	//	personLocation[1] = { selfLocation[1] - personDistance[0] * cos(personAngle[0] * PI / 180) };
-	//	personLocation[2] = { selfLocation[0] - personDistance[1] * sin(personAngle[1] * PI / 180) };
-	//	personLocation[3] = { selfLocation[1] - personDistance[1] * cos(personAngle[1] * PI / 180) };
-	//	personLocation[4] = { selfLocation[0] - personDistance[2] * sin(personAngle[2] * PI / 180) };
-	//	personLocation[5] = { selfLocation[1] - personDistance[2] * cos(personAngle[2] * PI / 180) };
-	//	personLocationVec[0] = { personLocation[0], personLocation[1] };
-	//	personLocationVec[1] = { personLocation[2], personLocation[3] };
-	//	personLocationVec[2] = { personLocation[4], personLocation[5] };
-	//	
-	//	/*personLocation[0] = { selfLocation[0] - personDistance * sin(personAngle * PI / 180) };
-	//	personLocation[1] = { selfLocation[1] - personDistance * cos(personAngle * PI / 180) };
-	//	person.drawHuman(personLocation);*/
-	//	
-	//	break;
-	//case 2:
-	//	break;
-	//case 3:
-	//	carLocation[0] = { selfLocation[0] - carDistance[0] * sin(carAngle[0] * PI / 180) };
-	//	carLocation[1] = { selfLocation[1] - carDistance[0] * cos(carAngle[0] * PI / 180) };
-	//	carLocation[2] = { selfLocation[0] - carDistance[1] * sin(carAngle[1] * PI / 180) };
-	//	carLocation[3] = { selfLocation[1] - carDistance[1] * cos(carAngle[1] * PI / 180) };
-	//	carLocation[4] = { selfLocation[0] - carDistance[2] * sin(carAngle[2] * PI / 180) };
-	//	carLocation[5] = { selfLocation[1] - carDistance[2] * cos(carAngle[2] * PI / 180) };
-	//	carLocationVec[0] = { carLocation[0], carLocation[1] };
-	//	carLocationVec[1] = { carLocation[2], carLocation[3] };
-	//	carLocationVec[2] = { carLocation[4], carLocation[5] };
-	//	
-	//	/*carLocation[0] = { selfLocation[0] - carDistance * sin(carAngle * PI / 180) };
-	//	carLocation[1] = { selfLocation[1] - carDistance * cos(carAngle * PI / 180) };
-	//	car.drawCar(carLocation);*/
-	//	break;
-	//default:
-	//	break;
-	//}
-	// for (size_t i = 0; i < 3; i++)
-	// {
-	// 	switch (detectedType)
-	// 	{
-	// 	case 1:
-	// 		people[i].drawHuman(locationVector[i]);
-	// 		break;
-	// 	case 3:
-	// 		cars[i].drawCar(locationVector[i]);
-	// 		break;
-	// 	default:
-	// 		break;
-	// 	}
-	// }
+	// draw the objects
 	for(int i = 0; i < 3; ++i){	
 		if (types[i] == 1) {
-			people[0].drawHuman(locationVector[i]);
+			person.drawHuman(locationVector[i]);
 		} else if (types[i] == 3) {
-			cars[0].drawCar(locationVector[i]);
+			car.drawCar(locationVector[i]);
 		}
 	}
 	glutSwapBuffers();
 }
-
+//----------------------------------------------------------------------
+// Reshape callback
+//
+// Window size has been set/changed to w by h pixels. Set the camera
+// perspective to g_fieldOfView degree vertical field of view, a window aspect
+// ratio of w/h, a near clipping plane at depth g_nearPlane, and a far clipping
+// plane at depth g_farPlane. The viewport is the entire window.
+//
+//----------------------------------------------------------------------
 void changeSize(int w, int h)
 {
 	float ratio = ((float)w / (float)h);	// window aspect ratio
@@ -474,22 +387,10 @@ void keyboard(unsigned char key, int x, int y)
 		break;
 	}
 }
-void drawGround()
-{
-	glPushMatrix();
-	// glMaterialfv(GL_FRONT, GL_DIFFUSE, colorBlue);
-	// glMaterialfv(GL_FRONT, GL_SPECULAR, colorBlue);
-	glColor3f(12.0f / 255.0f, 153.0f / 255.0f, 255.0f / 255.0f);
-	glBegin(GL_QUADS);
-	glVertex3f(-180.0, 200.0, 0.0);
-	glVertex3f(-180.0, -220.0, 0.0);
-	glVertex3f(180.0, -220.0, 0.0);
-	glVertex3f(180.0, 200.0, 0.0);
-	glEnd();
-	glPopMatrix();
-}
 
-
+//----------------------------------------------------------------------
+// Main program  - standard GLUT initializations and callbacks
+//----------------------------------------------------------------------
 int main(int argc, char** argv)
 {
 	printf("\n\
@@ -505,26 +406,14 @@ int main(int argc, char** argv)
   - Press ESC, q, and Q to quit\n\
 -----------------------------------------------------------------------\n");
 	std::thread Receive(receivePack);
-
-
+	// vector initialization
 	std::vector<GLdouble> location1;
 	location1 = { 0, -10000 };
-	/*for (auto i = 0; i < 6; ++i) 
-	{
-		personLocationVec.push_back(location1);
-		carLocationVec.push_back(location1);
-	}*/
-	/*for (auto i = 0; i < 2; ++i) {
-		personLocation.push_back(0);
-		carLocation.push_back(0);
-	}*/
 	for (auto i = 0; i < 6; ++i)
 	{
 		locationVector.push_back(location1);
 	}
-	
-
-	// general initialization
+	// general OpenGL initialization
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
 	glutInitWindowPosition(100, 50);
@@ -539,12 +428,7 @@ int main(int argc, char** argv)
 
 	// enter GLUT event processing cycle
 	glutMainLoop();
-
 	gluDeleteQuadric(quadratic);
-
 	Receive.join();
 	return 0;
 }
-
-
-
