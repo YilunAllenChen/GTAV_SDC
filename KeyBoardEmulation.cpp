@@ -1,3 +1,12 @@
+/*
+* Author: Jingxuan Wang
+* Class: ECE6122
+* Last Date Modified: 2020/11/27
+* 
+* Description: This file emulates keyboard presses based on the UDP packet received from the data ingestion module.
+*              It listens on a constant port and only reads a byte of data at a time.
+*/
+
 #define PORT    62001  
 //#include <windows.h>
 #include <stdio.h>
@@ -14,7 +23,7 @@
 #include <winsock2.h>
 #include <Ws2tcpip.h>
 
-#pragma comment (lib, "Ws2_32.lib")w
+#pragma comment (lib, "Ws2_32.lib")
 #else
 /* Assume that any non-Windows platform uses POSIX-style sockets instead. */
 #include <sys/socket.h>
@@ -25,6 +34,8 @@
 typedef int SOCKET;
 #endif
 
+
+//Initializes sockets (Copied from in class example)
 int sockInit(void)
 {
 #ifdef _WIN32
@@ -115,83 +126,48 @@ int main()
     while (true)
     {
         int n = recvfrom(sockfd, (char*)&buffer, 1, 0, (struct sockaddr*)&from, &fromlen);
-        //int n = 1;
-        //buffer = 0b11000000;
         if (n < 0)
             error("recvfrom");
-        //buffer[n] = 0;  // Null terminate
         printf("Received a datagram: %hhx\n", buffer);
-        //n = sendto(sockfd, "Got your message\n", 17, 0, (struct sockaddr*)&from, fromlen);
-        //if (n < 0)
-        //    error("sendto");
-
-        //If the command is a W
-        //int d = (buffer & 0b01000000) >> 6;
-        //std::cout << d << std::endl;
+        //The one byte data is interpreted on a bit basis
+        // The basis : W|A|S|D|E|S|_|_ where S stands for space
         if ((buffer >> 7) == 1) {
             ip.ki.wVk = 0x0; // virtual-key code for the "W" key
             ip.ki.wScan = 0x11;
             ip.ki.dwFlags = 0x8; // 0 for key press
             SendInput(1, &ip, sizeof(INPUT));
-            // Release the "W" key
-            //Sleep(50);
-            //ip.ki.dwFlags = KEYEVENTF_KEYUP; // KEYEVENTF_KEYUP for key release
-            //SendInput(1, &ip, sizeof(INPUT));
         }
         if (((buffer & 0b01000000) >> 6) == 1) {
             ip.ki.wVk = 0x0; // virtual-key code for the "A" key
             ip.ki.wScan = 0x1E;
             ip.ki.dwFlags = 0x8; // 0 for key press
             SendInput(1, &ip, sizeof(INPUT));
-            // Release the "A" key
-            //Sleep(50);
-            //ip.ki.dwFlags = KEYEVENTF_KEYUP; // KEYEVENTF_KEYUP for key release
-            //SendInput(1, &ip, sizeof(INPUT));
         }
         if (((buffer & 0b00100000) >> 5) == 1) {
             ip.ki.wVk = 0x0; // virtual-key code for the "S" key
             ip.ki.wScan = 0x1F;
             ip.ki.dwFlags = 0x8; // 0 for key press
             SendInput(1, &ip, sizeof(INPUT));
-            // Release the "S" key
-            //Sleep(50);
-            //ip.ki.dwFlags = KEYEVENTF_KEYUP; // KEYEVENTF_KEYUP for key release
-            //SendInput(1, &ip, sizeof(INPUT));
         }
         if (((buffer & 0b00010000) >> 4) == 1) {
             ip.ki.wVk = 0x0; // virtual-key code for the "D" key
             ip.ki.wScan = 0x20;
             ip.ki.dwFlags = 0x8; // 0 for key press
             SendInput(1, &ip, sizeof(INPUT));
-            // Sleep(50);
-            // Release the "D" key
-            //ip.ki.dwFlags = KEYEVENTF_KEYUP; // KEYEVENTF_KEYUP for key release
-            //SendInput(1, &ip, sizeof(INPUT));
         }
         if (((buffer & 0b00001000) >> 3) == 1) {
             ip.ki.wVk = 0x0; // virtual-key code for the "E" key
             ip.ki.wScan = 0x12;
             ip.ki.dwFlags = 0x8; // 0 for key press
             SendInput(1, &ip, sizeof(INPUT));
-            //Sleep(50);
-            // Release the "E" key
-            //ip.ki.dwFlags = KEYEVENTF_KEYUP; // KEYEVENTF_KEYUP for key release
-            //SendInput(1, &ip, sizeof(INPUT));
         }
         if (((buffer & 0b00000100) >> 2) == 1) {
             ip.ki.wVk = 0x0; // virtual-key code for the "space" key
             ip.ki.wScan = 0x39;
             ip.ki.dwFlags = 0x8; // 0 for key press
             SendInput(1, &ip, sizeof(INPUT));
-            //Sleep(50);
-            // Release the "space" key
-            //ip.ki.dwFlags = KEYEVENTF_KEYUP; // KEYEVENTF_KEYUP for key release
-            //SendInput(1, &ip, sizeof(INPUT));
         }
-        //else {
-        //    std::cout << "The input commmand which is " << buffer << ", is not valid! Please debug" << std::endl;
-        //    exit(1);
-        //}
+        //Wait for 50ms to emulate real key presses
         Sleep(50);
     }
     sockClose(sockfd);

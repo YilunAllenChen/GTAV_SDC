@@ -1,3 +1,11 @@
+/*
+* Author: Jingxuan Wang
+* Class: ECE6122
+* Last Date Modified: 2020/11/27
+* 
+* Description: Screencapture module using the GDIPLUS library. The executable takes screenshot of the top-left 800*600 pixel area of the desktop
+*              and outputs a png file to the local directory. The screenshots are numbered 0-9 to avoid file read/write races and thus improve latency.
+*/
 #include <string>
 #include <vector>
 #include <stdio.h>
@@ -12,10 +20,15 @@
 
 using namespace Gdiplus;
 
+/*
+* Desciption: This function creates a BitmapHeader using with the screencapture.
+*             @param width: the width of the BitmapHeader
+*             @param height: defines the orientation of the BitmapHeader
+              @return the created BitmapHeader
+*/
 BITMAPINFOHEADER createBitmapHeader(int width, int height)
 {
     BITMAPINFOHEADER  bi;
-
     // create a bitmap
     bi.biSize = sizeof(BITMAPINFOHEADER);
     bi.biWidth = width;
@@ -32,6 +45,11 @@ BITMAPINFOHEADER createBitmapHeader(int width, int height)
     return bi;
 }
 
+/*
+* Desciption: This function actually captures the window
+*             @param hWnd: The window handle to take the screencapture
+*             @param the BITMAP
+*/
 HBITMAP GdiPlusScreenCapture(HWND hWnd)
 {
     // get handles to a device context (DC)
@@ -45,6 +63,8 @@ HBITMAP GdiPlusScreenCapture(HWND hWnd)
     //int screeny = GetSystemMetrics(SM_YVIRTUALSCREEN);
     //int width = GetSystemMetrics(SM_CXVIRTUALSCREEN);
     //int height = GetSystemMetrics(SM_CYVIRTUALSCREEN);
+
+    //Defines the width and height of the screenshot and resulting file
     int width = 800;
     int height = 600;
     int screenx = 800;
@@ -77,6 +97,14 @@ HBITMAP GdiPlusScreenCapture(HWND hWnd)
     return hbwindow;
 }
 
+
+/*
+* Desciption: This function saves the resulting bitmap to file.
+*             @param hbitmap: The bitmap to write.
+*             @param data: the data which can be saved to
+*             @param dataFormat: dataFormat of the file
+*             @return if the saving is complete or not
+*/
 bool saveToMemory(HBITMAP* hbitmap, std::vector<BYTE>& data, std::string dataFormat = "png")
 {
     Gdiplus::Bitmap bmp(*hbitmap, nullptr);
@@ -112,6 +140,7 @@ bool saveToMemory(HBITMAP* hbitmap, std::vector<BYTE>& data, std::string dataFor
     return true;
 }
 
+//Global counter used to loop through avoid file conflict
 static int count = 0;
 int main()
 {
