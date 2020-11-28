@@ -1,4 +1,6 @@
-// Server side implementation of UDP client-server model 
+// This is a mock UDP receiver to test if UDP packets are properly delivered.
+
+
 #include <stdio.h> 
 #include <stdlib.h> 
 #include <unistd.h> 

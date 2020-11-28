@@ -1,3 +1,5 @@
+# Some Utilities to send UDP Packets to the Data Visualization Engine and the Keyboard Emulator. 
+
 import socket
 import struct
 from pprint import pprint as pp

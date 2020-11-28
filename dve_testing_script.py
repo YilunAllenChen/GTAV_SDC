@@ -1,3 +1,7 @@
+'''
+This is a testing script for the data visualization engine. It feeds mock data into the engine to see if it works.
+'''
+
 from udp_utils import send_to_visualization_engine, generate_bytes_packet
 from time import sleep
 from random import random

@@ -3,6 +3,10 @@
 # http://stackoverflow.com/questions/14489013/simulate-python-keypresses-for-controlling-a-game
 # http://www.gamespp.com/directx/directInputKeyboardScanCodes.html
 
+'''
+This modules exposes APIs to simulate DirectX Keys. Used only in debug.
+'''
+
 import ctypes
 import time
 
