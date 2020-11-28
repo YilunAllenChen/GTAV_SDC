@@ -1,6 +1,7 @@
 # GTAV_SDC
 Automatic Pedestrian Avoiding Vehicles in GTAV. It works ... when it does.
 
+Presentation Video: https://www.youtube.com/watch?v=K5tWRnS-N8U&feature=youtu.be
 
 ## Team Members
 - Yilun Chen
