@@ -109,6 +109,7 @@ int detectedType{};
 static GLdouble distance[3] = {};
 static GLdouble angle[3] = {};
 static GLdouble location[6]{};
+static int types[3] = {}
 static std::vector<std::vector<GLdouble>>locationVector;
 /////////////////////////////////////////////////
 // Cross-platform socket initialize
@@ -240,26 +241,27 @@ void receivePack()
 		for (size_t i = 0; i < 3; i++)
 		{
 			socket_mutex.lock();
-			switch (packet_buffer.type)
-			{
-			case 1:
-				detectedType = 1;
-				/*personDistance[i] = packet_buffer.distance;
-				personAngle[i] = packet_buffer.angle;*/
-				break;
-			case 2:
-				detectedType = 2;
-				break;
-			case 3:
-				detectedType = 3;
-				/*carDistance[i] = packet_buffer.distance;
-				carAngle[i] = packet_buffer.angle;*/
-				break;
-			default:
-				break;
-			}
+			// switch (packet_buffer.type)
+			// {
+			// case 1:
+			// 	detectedType = 1;
+			// 	/*personDistance[i] = packet_buffer.distance;
+			// 	personAngle[i] = packet_buffer.angle;*/
+			// 	break;
+			// case 2:
+			// 	detectedType = 2;
+			// 	break;
+			// case 3:
+			// 	detectedType = 3;
+			// 	/*carDistance[i] = packet_buffer.distance;
+			// 	carAngle[i] = packet_buffer.angle;*/
+			// 	break;
+			// default:
+			// 	break;
+			// }
 			distance[i] = packet_buffer.distance;
 			angle[i] = packet_buffer.angle;
+			types[i] = packet_buffer.type;
 			socket_mutex.unlock();
 		}
 	}
@@ -339,18 +341,30 @@ void display()
 	//default:
 	//	break;
 	//}
-	for (size_t i = 0; i < 3; i++)
-	{
-		switch (detectedType)
-		{
-		case 1:
-			people[i].drawHuman(locationVector[i]);
-			break;
-		case 3:
-			cars[i].drawCar(locationVector[i]);
-			break;
-		default:
-			break;
+	// for (size_t i = 0; i < 3; i++)
+	// {
+	// 	switch (detectedType)
+	// 	{
+	// 	case 1:
+	// 		people[i].drawHuman(locationVector[i]);
+	// 		break;
+	// 	case 3:
+	// 		cars[i].drawCar(locationVector[i]);
+	// 		break;
+	// 	default:
+	// 		break;
+	// 	}
+	// }
+	for(int i = 0; i < 3; ++i){
+		switch(types[i]){
+			case 1:
+				people[0].drawHuman(locationVector[i]);
+				break;
+			case 3:
+				cars[0].drawCar(locationVector[i]);
+				break;
+			default:
+				break;
 		}
 	}
 	glutSwapBuffers();
