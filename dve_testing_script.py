@@ -11,4 +11,4 @@ while(True):
                                     'angle': 20*i
                                 })
         send_to_visualization_engine(data)
-    sleep(1)
+        sleep(0.2)

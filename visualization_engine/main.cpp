@@ -109,7 +109,7 @@ int detectedType{};
 static GLdouble distance[3] = {};
 static GLdouble angle[3] = {};
 static GLdouble location[6]{};
-static int types[3] = {}
+static int types[3] = {};
 static std::vector<std::vector<GLdouble>>locationVector;
 /////////////////////////////////////////////////
 // Cross-platform socket initialize
@@ -232,14 +232,15 @@ void receivePack()
 	len = sizeof(cliaddr);  //len is value/resuslt 
 	while (1)
 	{
-		// printf("size of ve_packet %d \n", sizeof(ve_packet));
-		n = recvfrom(sockfd, (char*)&packet_buffer, 1023,
-			0, (struct sockaddr*)&cliaddr,
-			(socklen_t*)&len);
-		printf("Packet Received: type: %d , distance: %f , angle %f\n", packet_buffer.type, packet_buffer.distance, packet_buffer.angle);
-		
+
 		for (size_t i = 0; i < 3; i++)
 		{
+			// printf("size of ve_packet %d \n", sizeof(ve_packet));
+			n = recvfrom(sockfd, (char*)&packet_buffer, 1023,
+				0, (struct sockaddr*)&cliaddr,
+				(socklen_t*)&len);
+			printf("Packet Received: type: %d , distance: %f , angle %f\n", packet_buffer.type, packet_buffer.distance, packet_buffer.angle);
+
 			socket_mutex.lock();
 			// switch (packet_buffer.type)
 			// {
@@ -355,16 +356,11 @@ void display()
 	// 		break;
 	// 	}
 	// }
-	for(int i = 0; i < 3; ++i){
-		switch(types[i]){
-			case 1:
-				people[0].drawHuman(locationVector[i]);
-				break;
-			case 3:
-				cars[0].drawCar(locationVector[i]);
-				break;
-			default:
-				break;
+	for(int i = 0; i < 3; ++i){	
+		if (types[i] == 1) {
+			people[0].drawHuman(locationVector[i]);
+		} else if (types[i] == 3) {
+			cars[0].drawCar(locationVector[i]);
 		}
 	}
 	glutSwapBuffers();
